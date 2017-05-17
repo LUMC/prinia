@@ -1,0 +1,6 @@
+future
+biopython
+lxml
+pyfaidx
+fastools
+pyvcf

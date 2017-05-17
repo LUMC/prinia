@@ -1,0 +1,133 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="DOCUMENT">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element type="xs:string" name="TYPE" fixed="PRIM_MIR"/>
+        <xs:element type="xs:float" name="VERSIE" fixed="2.1"/>
+        <xs:element name="ANALYSEGROEP">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:int" name="ID"/>
+              <xs:element type="xs:string" name="DATUM"/>
+              <xs:element type="xs:string" name="METHODE"/>
+              <xs:element type="xs:string" name="PANELDATUM"/>
+              <xs:element name="RESULTS">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:int" name="MIRACLE_ID"/>
+                    <xs:element name="GAP">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="BUILD"/>
+                          <xs:element type="xs:byte" name="CHROMOSOOM"/>
+                          <xs:element name="GEN">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:string" name="CODE"/>
+                                <xs:element type="xs:string" name="NAAM"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element type="xs:int" name="COORDINATE_FROM"/>
+                          <xs:element type="xs:int" name="COORDINATE_TO"/>
+                          <xs:element name="PRIMERS" maxOccurs="unbounded" minOccurs="0">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:short" name="FRAGMENT_LENGTH"/>
+                                <xs:element type="xs:byte" name="GC_PERC"/>
+                                <xs:element name="PRIMER_F">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element type="xs:string" name="CODE"/>
+                                      <xs:element type="xs:string" name="SEQUENTIE"/>
+                                      <xs:element type="xs:int" name="COORDINATE"/>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                                <xs:element name="PRIMER_R">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element type="xs:string" name="CODE"/>
+                                      <xs:element type="xs:string" name="SEQUENTIE"/>
+                                      <xs:element type="xs:int" name="COORDINATE"/>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="UITSLAG">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="VARIANT">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:byte" name="CHROMOSOOM"/>
+                                <xs:element type="xs:int" name="COORDINATE_FROM"/>
+                                <xs:element type="xs:int" name="COORDINATE_TO"/>
+                                <xs:element name="GEN">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element type="xs:byte" name="CHROMOSOOM"/>
+                                      <xs:element type="xs:string" name="CODE"/>
+                                      <xs:element type="xs:string" name="NAAM"/>
+                                      <xs:element type="xs:string" name="LOCATIE"/>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                                <xs:element type="xs:string" name="BUILD"/>
+                                <xs:element type="xs:string" name="GENOOM_REF_SEQ"/>
+                                <xs:element type="xs:string" name="WIJZIGING_GENOOM"/>
+                                <xs:element type="xs:string" name="TR_REF_SEQ"/>
+                                <xs:element type="xs:string" name="WIJZIGING_GEN"/>
+                                <xs:element type="xs:string" name="WIJZIGING_RNA"/>
+                                <xs:element type="xs:string" name="WIJZIGING_EIWIT"/>
+                                <xs:element name="PRIMERS">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element type="xs:short" name="FRAGMENT_LENGTH"/>
+                                      <xs:element type="xs:byte" name="GC_PERC"/>
+                                      <xs:element name="PRIMER_F">
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element type="xs:string" name="CODE"/>
+                                            <xs:element type="xs:string" name="SEQUENTIE"/>
+                                            <xs:element type="xs:int" name="COORDINATE"/>
+                                          </xs:sequence>
+                                        </xs:complexType>
+                                      </xs:element>
+                                      <xs:element name="PRIMER_R">
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element type="xs:string" name="CODE"/>
+                                            <xs:element type="xs:string" name="SEQUENTIE"/>
+                                            <xs:element type="xs:int" name="COORDINATE"/>
+                                          </xs:sequence>
+                                        </xs:complexType>
+                                      </xs:element>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element type="xs:string" name="DE_NOVO"/>
+                          <xs:element type="xs:string" name="PATERNAAL"/>
+                          <xs:element type="xs:string" name="MATERNAAL"/>
+                          <xs:element type="xs:string" name="UITSLAG_CODE"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
