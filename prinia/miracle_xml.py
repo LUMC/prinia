@@ -18,6 +18,11 @@ REGION_XSD = os.path.join(os.path.join(os.path.dirname(__file__), "static"), 're
 from .models import *
 from .utils import calc_gc, datehash
 
+try:
+    from itertools import zip_longest as longzip
+except ImportError:
+    from itertools import izip_longest as longzip
+
 
 def miracle_to_primer_and_var(xml, xsd=DEFAULT_XSD):
     with open(xsd, "rb") as xsd_handle:
@@ -156,6 +161,27 @@ def common_xml(miracle_id, paneldatum, panel=True, old=True):
     return document, results
 
 
+def primer_to_xml(root, prim, var):
+
+    primer_f = etree.SubElement(root, "PRIMER_F")
+    f_code = etree.SubElement(primer_f, "CODE")
+    f_code.text = var.gene_id + "_F." + datehash()
+    f_seq = etree.SubElement(primer_f, "SEQUENTIE")
+    f_seq.text = prim.left
+    f_loc = etree.SubElement(primer_f, "COORDINATE")
+    f_loc.text = str(prim.left_pos)
+
+    primer_r = etree.SubElement(root, "PRIMER_R")
+    r_code = etree.SubElement(primer_r, "CODE")
+    r_code.text = var.gene_id + "_R." + datehash()
+    r_seq = etree.SubElement(primer_r, "SEQUENTIE")
+    r_seq.text = prim.right
+    r_loc = etree.SubElement(primer_r, "COORDINATE")
+    r_loc.text = str(prim.right_pos)
+
+    return root
+
+
 def vars_and_primers_to_xml(variants, primers, xml_path=None, xsd=DEFAULT_XSD, old=True):
     panel = int(variants[0].in_gene_panel) == 1
 
@@ -167,7 +193,7 @@ def vars_and_primers_to_xml(variants, primers, xml_path=None, xsd=DEFAULT_XSD, o
     document, results = common_xml(variants[0].miracle_id, variants[0].datum, panel, old=old)
     i = 1
 
-    for var, prim in zip(variants, primers):
+    for var, prim in longzip(variants, primers, fillvalue=None):
         uitslag = etree.SubElement(results, "UITSLAG")
         variant = etree.SubElement(uitslag, "VARIANT")
 
@@ -215,33 +241,23 @@ def vars_and_primers_to_xml(variants, primers, xml_path=None, xsd=DEFAULT_XSD, o
         variation_prot.text = var.variant_on_transcript_protein
 
         prims = etree.SubElement(variant, "PRIMERS")
-        frag_len = etree.SubElement(prims, "FRAGMENT_LENGTH")
-        # fragment is the region between the end of the forward primer, and the start of the reverse primer
 
-        frag_len.text = str(int(prim.right_pos) - (int(prim.left_pos) + len(prim.left)))
+        if prim is not None:
+            prims = primer_to_xml(prims, prim, var)
+            frag_len = etree.SubElement(prims, "FRAGMENT_LENGTH")
+            # fragment is the region between the end of the forward primer, and the start of the reverse primer
 
-        gc_perc = etree.SubElement(prims, "GC_PERC")
+            frag_len.text = str(int(prim.right_pos) - (int(prim.left_pos) + len(prim.left)))
 
-        try:
-            gc_perc.text = str(int(calc_gc(prim.fragment_sequence)))
-        except ValueError:
-            gc_perc.text = '0'
+            gc_perc = etree.SubElement(prims, "GC_PERC")
 
-        primer_f = etree.SubElement(prims, "PRIMER_F")
-        f_code = etree.SubElement(primer_f, "CODE")
-        f_code.text = var.gene_id + "_F." + datehash()
-        f_seq = etree.SubElement(primer_f, "SEQUENTIE")
-        f_seq.text = prim.left
-        f_loc = etree.SubElement(primer_f, "COORDINATE")
-        f_loc.text = str(prim.left_pos)
-
-        primer_r = etree.SubElement(prims, "PRIMER_R")
-        r_code = etree.SubElement(primer_r, "CODE")
-        r_code.text = var.gene_id + "_R." + datehash()
-        r_seq = etree.SubElement(primer_r, "SEQUENTIE")
-        r_seq.text = prim.right
-        r_loc = etree.SubElement(primer_r, "COORDINATE")
-        r_loc.text = str(prim.right_pos)
+            try:
+                gc_perc.text = str(int(calc_gc(prim.fragment_sequence)))
+            except ValueError:
+                gc_perc.text = '0'
+        else:
+            comment = etree.SubElement(uitslag, "OPMERKING")
+            comment.text = "NO PRIMERS FOUND"
 
         denovo = etree.SubElement(uitslag, "DE_NOVO")
         if var.variant_on_genome_origin == "De novo":

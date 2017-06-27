@@ -11,7 +11,7 @@ import argparse
 from prinia.lovd import *
 from prinia.design import *
 from prinia.miracle_xml import vars_and_primers_to_xml, regions_and_primers_to_xml
-from prinia.utils import generate_fastq_from_primers
+from prinia.utils import generate_fastq_from_primers, NoPrimersException
 
 __author__ = 'ahbbollen'
 
@@ -19,19 +19,25 @@ __author__ = 'ahbbollen'
 def primers_from_lovd(lovd_file, padding, product_size, n_prims, reference,
                       blat_exe, primer3_exe, dbsnp, field, max_freq,
                       m13=False, m13_f="", m13_r="", strict=False,
-                      min_margin=10):
+                      min_margin=10, ignore_errors=False):
 
     variants = var_from_lovd(lovd_file)
     primers = []
     for var in variants:
         region = Region.from_variant(var, padding_l=padding, padding_r=padding)
-        _, prims = get_primer_from_region(region, reference, product_size,
+        try:
+            _, prims = get_primer_from_region(region, reference, product_size,
                                           n_prims, blat_exe, primer3_exe,
                                           dbsnp=dbsnp, field=field,
                                           max_freq=max_freq,
                                           strict=strict,
                                           min_margin=min_margin)
-        primers.append(prims[0])
+            primers.append(prims[0])
+        except NoPrimersException:
+            if ignore_errors:
+                continue
+            else:
+                raise NoPrimersException
     if m13:
         primers = m13_primers(primers, m13_f, m13_r)
 
@@ -154,6 +160,8 @@ def main():
     parser.add_argument('--primer3', help="Path to primer3_core exe", default=None, required=True)
     parser.add_argument('--blat', help="Path to blat exe", default=None, required=True)
 
+    parser.add_argument("--ignore-errors", help="Ignore errors", action="store_true")
+
     args = parser.parse_args()
 
     if not args.lovd and not args.region:
@@ -179,7 +187,8 @@ def main():
                                               args.m13, args.m13_forward,
                                               args.m13_reverse,
                                               args.strict,
-                                              args.min_margin)
+                                              args.min_margin,
+                                              args.ignore_errors)
         primers_to_xml(variants, primers, args.xml, type='variants')
 
     elif args.region and args.xml:
@@ -205,7 +214,8 @@ def main():
                                               args.m13, args.m13_forward,
                                               args.m13_reverse,
                                               args.strict,
-                                              args.min_margin)
+                                              args.min_margin,
+                                              args.ignore_errors)
         primers_to_tsv(variants, primers, args.tsv, type='variants')
 
     elif args.region and args.tsv:

@@ -44,9 +44,9 @@
                                 <xs:element name="PRIMERS">
                                   <xs:complexType>
                                     <xs:sequence>
-                                      <xs:element type="xs:short" name="FRAGMENT_LENGTH"/>
-                                      <xs:element type="xs:byte" name="GC_PERC"/>
-                                      <xs:element name="PRIMER_F">
+                                      <xs:element type="xs:short" name="FRAGMENT_LENGTH" minOccurs="0"/>
+                                      <xs:element type="xs:byte" name="GC_PERC" minOccurs="0"/>
+                                      <xs:element name="PRIMER_F" minOccurs="0">
                                         <xs:complexType>
                                           <xs:sequence>
                                             <xs:element type="xs:string" name="CODE"/>
@@ -55,7 +55,7 @@
                                           </xs:sequence>
                                         </xs:complexType>
                                       </xs:element>
-                                      <xs:element name="PRIMER_R">
+                                      <xs:element name="PRIMER_R" minOccurs="0">
                                         <xs:complexType>
                                           <xs:sequence>
                                             <xs:element type="xs:string" name="CODE"/>
@@ -70,6 +70,7 @@
                               </xs:sequence>
                             </xs:complexType>
                           </xs:element>
+                          <xs:element type="xs:string" name="OPMERKING" minOccurs="0"/>
                           <xs:element type="xs:string" name="DE_NOVO"/>
                           <xs:element type="xs:string" name="PATERNAAL"/>
                           <xs:element type="xs:string" name="MATERNAAL"/>
