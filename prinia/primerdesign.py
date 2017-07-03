@@ -17,9 +17,9 @@ __author__ = 'ahbbollen'
 
 
 def primers_from_lovd(lovd_file, padding, product_size, n_prims, reference,
-                      blat_exe, primer3_exe, dbsnp, field, max_freq,
-                      m13=False, m13_f="", m13_r="", strict=False,
-                      min_margin=10, ignore_errors=False):
+                      bwa_exe, samtools_exe, primer3_exe, output_bam, dbsnp,
+                      field, max_freq, m13=False, m13_f="", m13_r="",
+                      strict=False, min_margin=10, ignore_errors=False):
 
     variants = var_from_lovd(lovd_file)
     primers = []
@@ -27,11 +27,12 @@ def primers_from_lovd(lovd_file, padding, product_size, n_prims, reference,
         region = Region.from_variant(var, padding_l=padding, padding_r=padding)
         try:
             _, prims = get_primer_from_region(region, reference, product_size,
-                                          n_prims, blat_exe, primer3_exe,
-                                          dbsnp=dbsnp, field=field,
-                                          max_freq=max_freq,
-                                          strict=strict,
-                                          min_margin=min_margin)
+                                              n_prims, bwa_exe, samtools_exe,
+                                              primer3_exe,
+                                              output_bam=output_bam,
+                                              dbsnp=dbsnp, field=field,
+                                              max_freq=max_freq, strict=strict,
+                                              min_margin=min_margin)
             primers.append(prims[0])
         except NoPrimersException:
             if ignore_errors:
@@ -45,9 +46,9 @@ def primers_from_lovd(lovd_file, padding, product_size, n_prims, reference,
 
 
 def primers_from_region(bed_path, padding, product_size, n_prims, reference,
-                        blat_exe, primer3_exe, dbsnp, field, max_freq,
-                        m13=False, m13_f="", m13_r="", strict=False,
-                        min_margin=10):
+                        bwa_exe, samtools_exe, primer3_exe, output_bam,
+                        dbsnp, field, max_freq, m13=False, m13_f="",
+                        m13_r="", strict=False, min_margin=10):
     regions = []
     primers = []
     with open(bed_path, "rb") as bed:
@@ -58,7 +59,8 @@ def primers_from_region(bed_path, padding, product_size, n_prims, reference,
                                      padding_r=padding)
             regs, prims = get_primer_from_region(region, reference,
                                                  product_size, n_prims,
-                                                 blat_exe, primer3_exe,
+                                                 bwa_exe, samtools_exe,
+                                                 primer3_exe, output_bam=output_bam,
                                                  dbsnp=dbsnp, field=field,
                                                  max_freq=max_freq,
                                                  strict=strict,
@@ -125,6 +127,8 @@ def main():
     output_group.add_argument('-x', '--xml', help="Output Miracle XML file")
     output_group.add_argument('-t', '--tsv', help="Output TSV file")
 
+    parser.add_argument('-b', '--bam', help="Path to output BAM file containing primers", required=True)
+
     parser.add_argument('-s', '--sample', help="Same ID for regions")
 
     parser.add_argument('--product_size', help="Size range of desired product. Defaults to 200-450 \
@@ -158,7 +162,8 @@ def main():
     parser.add_argument('-R', '--reference', help="Path to reference fasta file", default=None, required=True)
     parser.add_argument('--dbsnp', help="Path to DBSNP vcf", default=None, required=True)
     parser.add_argument('--primer3', help="Path to primer3_core exe", default=None, required=True)
-    parser.add_argument('--blat', help="Path to blat exe", default=None, required=True)
+    parser.add_argument('--bwa', help="Path to BWA exe", default="bwa")
+    parser.add_argument('--samtools', help="Path to samtools exe", default="samtools")
 
     parser.add_argument("--ignore-errors", help="Ignore errors", action="store_true")
 
@@ -181,8 +186,9 @@ def main():
         variants, primers = primers_from_lovd(args.lovd, args.padding,
                                               args.product_size,
                                               args.n_raw_primers,
-                                              args.reference, args.blat,
-                                              args.primer3, args.dbsnp,
+                                              args.reference, args.bwa,
+                                              args.samtools, args.primer3,
+                                              args.bam, args.dbsnp,
                                               args.field, args.allele_freq,
                                               args.m13, args.m13_forward,
                                               args.m13_reverse,
@@ -195,8 +201,9 @@ def main():
         regions, primers = primers_from_region(args.region, args.padding,
                                                args.product_size,
                                                args.n_raw_primers,
-                                               args.reference, args.blat,
-                                               args.primer3, args.dbsnp,
+                                               args.reference, args.bwa,
+                                               args.samtools, args.primer3,
+                                               args.bam, args.dbsnp,
                                                args.field, args.allele_freq,
                                                args.m13, args.m13_forward,
                                                args.m13_reverse,
@@ -208,8 +215,9 @@ def main():
         variants, primers = primers_from_lovd(args.lovd, args.padding,
                                               args.product_size,
                                               args.n_raw_primers,
-                                              args.reference, args.blat,
-                                              args.primer3, args.dbsnp,
+                                              args.reference, args.bwa,
+                                              args.samtools, args.primer3,
+                                              args.bam, args.dbsnp,
                                               args.field, args.allele_freq,
                                               args.m13, args.m13_forward,
                                               args.m13_reverse,
@@ -222,8 +230,9 @@ def main():
         regions, primers = primers_from_region(args.region, args.padding,
                                                args.product_size,
                                                args.n_raw_primers,
-                                               args.reference, args.blat,
-                                               args.primer3, args.dbsnp,
+                                               args.reference, args.bwa,
+                                               args.samtools, args.primer3,
+                                               args.bam, args.dbsnp,
                                                args.field, args.allele_freq,
                                                args.m13, args.m13_forward,
                                                args.m13_reverse,

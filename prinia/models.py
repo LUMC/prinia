@@ -118,6 +118,10 @@ class Primer(object):
     left_name = ''
     right_name = ''
 
+    def __init__(self, **kwargs):
+        for kw, kv in kwargs.items():
+            setattr(self, kw, kv)
+
     @classmethod
     def from_p3(cls, forward, reverse, fragment=None, chromosome=None, position=None):
         # line looks like this:

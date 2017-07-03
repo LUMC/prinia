@@ -65,7 +65,7 @@ def primer_to_seq_record(primer):
     :return: 2-tuple of (SeqRecord forward, SeqRecord reverse)
     """
     id_str = datehash()
-    forward_id = "{0}".format(id_str)
+    forward_id = "{0}/1".format(id_str)
     reverse_id = "{0}/2".format(id_str)
     forward_seq = Seq(primer.left, alphabet=NucleotideAlphabet)
     reverse_seq = Seq(primer.right, alphabet=NucleotideAlphabet)

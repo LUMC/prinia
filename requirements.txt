@@ -1,6 +1,7 @@
 future
 biopython
 lxml
+pysam
 pyfaidx
 fastools
 pyvcf

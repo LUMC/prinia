@@ -243,7 +243,6 @@ def vars_and_primers_to_xml(variants, primers, xml_path=None, xsd=DEFAULT_XSD, o
         prims = etree.SubElement(variant, "PRIMERS")
 
         if prim is not None:
-            prims = primer_to_xml(prims, prim, var)
             frag_len = etree.SubElement(prims, "FRAGMENT_LENGTH")
             # fragment is the region between the end of the forward primer, and the start of the reverse primer
 
@@ -255,6 +254,7 @@ def vars_and_primers_to_xml(variants, primers, xml_path=None, xsd=DEFAULT_XSD, o
                 gc_perc.text = str(int(calc_gc(prim.fragment_sequence)))
             except ValueError:
                 gc_perc.text = '0'
+            _ = primer_to_xml(prims, prim, var)
         else:
             comment = etree.SubElement(uitslag, "OPMERKING")
             comment.text = "NO PRIMERS FOUND"
