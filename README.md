@@ -6,7 +6,7 @@ Prinia is a python package for designing primers from genomic regions or LOVD im
 Requirements
 -------------
 
-You must have a recent version of [primer3](http://primer3.sourceforge.net/) and [blat](http://sourceforge.net/projects/blat/files/Blat%20Full%20Version/)
+You must have a recent version of [primer3](http://primer3.sourceforge.net/), [samtools](http://www.htslib.org/download/) and [bwa](https://github.com/lh3/bwa)
 
 Furthermore, the following python packages are required:
 
@@ -48,12 +48,13 @@ This tool will generate your primers from BED records (regions) or LOVD import f
 
 ```
 usage: primerdesign [-h] (-l LOVD | --region REGION) [-p PADDING]
-                    (-x XML | -t TSV) [-s SAMPLE]
-                    [--product_size PRODUCT_SIZE]
-                    [--n_raw_primers N_RAW_PRIMERS] [--m13]
+                    (-x XML | -t TSV) -b BAM [-s SAMPLE]
+                    [--product_size PRODUCT_SIZE] [--min-margin MIN_MARGIN]
+                    [--strict] [--n_raw_primers N_RAW_PRIMERS] [--m13]
                     [--m13-forward M13_FORWARD] [--m13-reverse M13_REVERSE]
-                    [-f FIELD] [-af ALLELE_FREQ] -R REFERENCE --dbsnp DBSNP
-                    --primer3 PRIMER3 --blat BLAT
+                    [-f FIELD] [-af ALLELE_FREQ] [-fq1 FQ1] [-fq2 FQ2] -R
+                    REFERENCE --dbsnp DBSNP --primer3 PRIMER3 [--bwa BWA]
+                    [--samtools SAMTOOLS] [--ignore-errors]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -64,12 +65,17 @@ optional arguments:
                         to 100
   -x XML, --xml XML     Output Miracle XML file
   -t TSV, --tsv TSV     Output TSV file
+  -b BAM, --bam BAM     Path to output BAM file containing primers
   -s SAMPLE, --sample SAMPLE
                         Same ID for regions
   --product_size PRODUCT_SIZE
                         Size range of desired product. Defaults to 200-450
                         This will be taken as a minimum product size in the
                         case of regions
+  --min-margin MIN_MARGIN
+                        Minimum distance from region or variant. Default = 10
+  --strict              Enable strict mode. Primers with products larger than
+                        max product size will NOT be returned
   --n_raw_primers N_RAW_PRIMERS
                         Amount of raw primers from primer3 output that will be
                         considered. By default, only the top 4 primers (in
@@ -85,11 +91,19 @@ optional arguments:
                         Name of field in DBSNP file for allele frequency
   -af ALLELE_FREQ, --allele-freq ALLELE_FREQ
                         Max accepted allele freq
+  -fq1 FQ1              Path to forward fastq file for primer output. Set if
+                        you want to export your primers in fastq format
+                        (qualities will be sanger-encoded 40)
+  -fq2 FQ2              Path to reverse fastq file for primer output. Set if
+                        you want to export your primers in fastq format
+                        (qualities will be sanger-encoded 40)
   -R REFERENCE, --reference REFERENCE
                         Path to reference fasta file
   --dbsnp DBSNP         Path to DBSNP vcf
-  --primer3 PRIMER3     Path to primer3 exe
-  --blat BLAT           Path to blat exe
+  --primer3 PRIMER3     Path to primer3_core exe
+  --bwa BWA             Path to BWA exe
+  --samtools SAMTOOLS   Path to samtools exe
+  --ignore-errors       Ignore errors
 
 ```
 
@@ -111,8 +125,12 @@ The following arguments are mandatory:
 
 * `-R`: path to reference fasta. This fasta *must* have a `.fai` index. Generate this with `samtools faidx <fasta>`
 * `--dbsnp`: Path to DBSNP VCF file
-* `--primer3`: Path to primer 3 executable. On the SHARK cluster, this is `/usr/bin/primer3_core`
-* `--blat`: Path to blat executable. On the SHARK cluster, this is `/usr/local/bin/blat` 
+* `--primer3`: Path to primer 3 executable.
+
+Recommended arguments:
+
+* `--samtools`: Path to samtools. If not given, will simply assume `samtools` is on the PATH.
+* `--bwa`: Path to bwa. If not given, will simply assume `bwa` is on the PATH. 
 
 
 Known issues
