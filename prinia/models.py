@@ -4,34 +4,7 @@ from builtins import (ascii, bytes, chr, dict, filter, hex, input,
 
 __author__ = 'ahbbollen'
 
-from collections import namedtuple
 from datetime import datetime
-
-BLAT_FIELDS = [
-    "match",
-    "mismatch",
-    "repmatch",
-    "N",
-    "Q_gap_count",
-    "Q_gap_bases",
-    "T_gap_count",
-    "T_gap_bases",
-    "strand",
-    "Q_name",
-    "Q_size",
-    "Q_start",
-    "Q_end",
-    "T_name",
-    "T_size",
-    "T_start",
-    "T_end",
-    "block_count",
-    "block_sizes",
-    "q_starts",
-    "t_starts"
-]
-
-BlatLine = namedtuple("BlatLine", BLAT_FIELDS)
 
 
 class Variant(object):
@@ -245,7 +218,3 @@ class Region(object):
                   other=region.other_information)
 
         return cut, remainder
-
-
-
-

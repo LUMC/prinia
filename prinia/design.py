@@ -3,23 +3,15 @@ from builtins import (ascii, bytes, chr, dict, filter, hex, input,
                       str, super, zip)
 __author__ = 'ahbbollen'
 
-from tempfile import TemporaryFile, NamedTemporaryFile
+from tempfile import NamedTemporaryFile
 from subprocess import check_call
 import os
-import re
 import warnings
-from time import sleep
 
-from Bio import SeqIO
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.Alphabet import generic_dna
-
-from fastools.fastools import get_reference
 from pyfaidx import Fasta
 from pysam import AlignmentFile
 
-from .models import Primer, Region, BlatLine
+from .models import Primer, Region
 from .utils import NoPrimersException, calc_gc, NEW_VCF, generate_fastq_from_primers
 
 PRIMER3_SCRIPT = os.path.join(os.path.join(os.path.dirname(__file__) ,"static"), 'getprimers.sh')
@@ -416,4 +408,3 @@ def create_left_prim(primer, reference):
     next_left.position = primer_r_pos
 
     return next_left
-
