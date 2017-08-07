@@ -1,12 +1,6 @@
 from tempfile import NamedTemporaryFile
 from subprocess import check_call
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
-
-
 class Primer3(object):
 
     def __init__(self, primer3_exe, template, target, excluded_region,
@@ -93,11 +87,12 @@ class Primer3(object):
 
         _ = check_call(args=args)
 
-        retval = StringIO()
+        retval = []
         with open(out.name) as handle:
             for l in handle:
-                retval.write(l)
+                retval.append(l.strip())
 
         out.close()
         cfg.close()
+
         return retval
