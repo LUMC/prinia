@@ -1,6 +1,11 @@
 from tempfile import NamedTemporaryFile
 from subprocess import check_call
 
+import re
+
+from .models import Primer
+
+
 class Primer3(object):
 
     def __init__(self, primer3_exe, template, target, excluded_region,
@@ -96,3 +101,50 @@ class Primer3(object):
         cfg.close()
 
         return retval
+
+
+def _parse_single_pair_id(id, lines):
+    """Parse single pair id"""
+    left_seq_key = "PRIMER_LEFT_{0}_SEQUENCE=".format(id)
+    right_seq_key = "PRIMER_RIGHT_{0}_SEQUENCE=".format(id)
+    left_pos_key = "PRIMER_LEFT_{0}=".format(id)
+    right_pos_key = "PRIMER_RIGHT_{0}=".format(id)
+    left_gc_key = "PRIMER_LEFT_{0}_GC_PERCENT".format(id)
+    right_gc_key = "PRIMER_RIGHT_{0}_GC_PERCENT".format(id)
+
+    left_seq_line = [x for x in lines if x.startswith(left_seq_key)]
+    right_seq_line = [x for x in lines if x.startswith(right_seq_key)]
+    left_pos_line = [x for x in lines if x.startswith(left_pos_key)]
+    right_pos_line = [x for x in lines if x.startswith(right_pos_key)]
+    left_gc_line = [x for x in lines if x.startswith(left_gc_key)]
+    right_gc_line = [x for x in lines if x.startswith(right_gc_key)]
+
+    d = {}
+    for name, val in zip(
+            ["left", "right", "left_gc", "right_gc"],
+            [left_seq_line, right_seq_line, left_gc_line, right_gc_line]
+    ):
+        if len(val) != 1:
+            raise ValueError("Value for {n} "
+                             "must have exactly one match".format(n=name))
+        d[name] = val[0].split("=")[-1]
+
+    for name, val in zip(["left_pos", "right_pos"],
+                         [left_pos_line, right_pos_line]):
+        if len(val) != 1:
+            raise ValueError("Vale for {n} "
+                             "must have exactly one match".format(n=name))
+        d[name] = val[0].split("=")[-1].split(",")[0]
+
+    return Primer(**d)
+
+
+def parse_primer3_output(lines):
+    """Parse primer3 output to Primers"""
+    seq_re = re.compile('^PRIMER_LEFT_(\d+)_SEQUENCE=.+$')
+
+    matches = [seq_re.match(x) for x in lines]
+    pair_ids = [int(x.group(1)) for x in matches if x is not None]
+
+    for id in pair_ids:
+        yield _parse_single_pair_id(id, lines)
