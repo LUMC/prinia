@@ -1,5 +1,6 @@
 from tempfile import NamedTemporaryFile
 from subprocess import check_call
+import os
 
 import re
 
@@ -67,7 +68,8 @@ class Primer3(object):
                   "PRIMER_EXPLAIN_FLAG=1\n" \
                   "PRIMER_MIN_TM={it}\n" \
                   "PRIMER_MAX_TM={at}\n" \
-                  "PRIMER_NUM_RETURN=200".format(
+                  "PRIMER_NUM_RETURN=200\n" \
+                  "=".format(
             seq=self.template,
             tar=self.target,
             exc=self.excluded_region,
@@ -84,13 +86,14 @@ class Primer3(object):
         handle.write(cfg_str)
 
     def run(self):
-        cfg = NamedTemporaryFile()
+        cfg = NamedTemporaryFile(delete=False)
         out = NamedTemporaryFile()
 
         self.create_config(cfg)
+        cfg.close()
         args = [self.primer3_exe, "-output", out.name, cfg.name]
 
-        _ = check_call(args=args)
+        _ = check_call(args)
 
         retval = []
         with open(out.name) as handle:
@@ -98,7 +101,7 @@ class Primer3(object):
                 retval.append(l.strip())
 
         out.close()
-        cfg.close()
+        os.remove(cfg.name)
 
         return retval
 

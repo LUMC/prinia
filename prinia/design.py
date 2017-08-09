@@ -12,6 +12,7 @@ from pyfaidx import Fasta
 from pysam import AlignmentFile
 
 from .models import Primer, Region
+from .primer3 import Primer3, parse_primer3_output
 from .utils import NoPrimersException, calc_gc, NEW_VCF, generate_fastq_from_primers
 
 PRIMER3_SCRIPT = os.path.join(os.path.join(os.path.dirname(__file__) ,"static"), 'getprimers.sh')
@@ -43,25 +44,10 @@ def run_primer3(sequence, region, padding=True,
         target_len = len(sequence)
 
     target = ",".join(map(str, [target_start, target_len]))
-    opt_size = str(sum(map(int, product_size.split("-"))) / 2)
 
-    args = [primer3_script, product_size, target, sequence, target, opt_size, prim3_exe]
-    retval = check_call(args)
-    if retval != 0:
-        raise ValueError("Primer3 crashed")
-
-    # now read example.for and example.rev
-
-    with open("example.for", "rb") as forward, open("example.rev", "rb") as reverse:
-        forwards = _sanitize_p3(forward)
-        reverses = _sanitize_p3(reverse)
-
-    forwards, reverses = _get_shortest(forwards, reverses, n_primers)
-
-    if len(forwards) == 0 or len(reverses) == 0:
-        raise NoPrimersException("No acceptable primers could be found. Try increasing the padding")
-
-    primers = [Primer.from_p3(x, y, sequence, region.chr, region.start) for x, y in zip(forwards, reverses)]
+    p3 = Primer3(prim3_exe, sequence, target, target)
+    p3_out = p3.run()
+    primers = parse_primer3_output(p3_out)
     return primers
 
 
