@@ -289,18 +289,6 @@ def find_snps(primer, db_snp=None, field="AF"):
     return primer
 
 
-def _sanitize_p3(handle):
-    # sanitize p3 output
-    # first line should always be removed:
-    _ = next(handle)
-    return [x for x in handle if "#" not in x.decode()]
-
-
-def _get_shortest(x, y, max_v):
-    small = min(len(x), len(y), max_v)
-    return x[:small], y[:small]
-
-
 def chop_region(region, size):
     """
     Chop a region in multiple regions with max size `size`
@@ -378,23 +366,3 @@ def get_primer_from_region(region, reference, product_size, n_prims,
     if len(primers) == 0 or len(return_regions) == 0:
         raise NoPrimersException
     return return_regions, primers
-
-
-def create_left_prim(primer, reference):
-    primer_r_pos = primer.position + int(primer.right_pos)
-    n_region = Region(start=primer_r_pos - len(primer.right), stop=primer_r_pos,
-                      chromosome=primer.chromosome, padding_left=0, padding_right=0,
-                      acc_nr="NA", other="NA")
-    next_left_seq = get_sequence_fasta(n_region, reference=reference, padding=False)
-    next_left_pos = primer_r_pos - len(primer.right)
-    next_left_gc = calc_gc(next_left_seq)
-    next_left = Primer()
-    next_left.left = next_left_seq
-    next_left.left_gc = next_left_gc
-    next_left.left_pos = next_left_pos
-    next_left.left_len = len(next_left_seq)
-    next_left.left_name = '.'.join([primer.chromosome, str(primer.position)]) + "_left"
-    next_left.chromosome = primer.chromosome
-    next_left.position = primer_r_pos
-
-    return next_left
