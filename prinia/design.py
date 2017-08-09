@@ -35,7 +35,8 @@ def get_sequence_fasta(region, reference=None, padding=True):
 
 def run_primer3(sequence, region, padding=True,
                 primer3_script=PRIMER3_SCRIPT, product_size="200-450",
-                n_primers=4, prim3_exe=None):
+                n_primers=4, prim3_exe=None, **kwargs):
+    """Run primer 3. All other kwargs will be passed on to primer3"""
     if padding:
         target_start = region.padding_left
         target_len = len(sequence) - region.padding_left - region.padding_right
@@ -45,7 +46,7 @@ def run_primer3(sequence, region, padding=True,
 
     target = ",".join(map(str, [target_start, target_len]))
 
-    p3 = Primer3(prim3_exe, sequence, target, target)
+    p3 = Primer3(prim3_exe, sequence, target, target, **kwargs)
     p3_out = p3.run()
     primers = parse_primer3_output(p3_out)
     return primers
@@ -331,7 +332,9 @@ def chop_region(region, size):
 def get_primer_from_region(region, reference, product_size, n_prims,
                            bwa_exe, samtools_exe, primer3_exe,
                            output_bam=None, dbsnp=None, field=None,
-                           max_freq=None, strict=False, min_margin=10):
+                           max_freq=None, strict=False, min_margin=10,
+                           **prim_args):
+    """**prim_args will be passed on to primer3"""
 
     min_length, max_length = list(map(int, product_size.split("-")))
     regions = chop_region(region, min_length)
@@ -345,7 +348,8 @@ def get_primer_from_region(region, reference, product_size, n_prims,
         sequence = get_sequence_fasta(reg, reference=reference)
         raw_primers = run_primer3(sequence, reg, padding=True,
                                   product_size=product_size,
-                                  n_primers=n_prims, prim3_exe=primer3_exe)
+                                  n_primers=n_prims, prim3_exe=primer3_exe,
+                                  **prim_args)
         bam = aln_primers(raw_primers, bwa_exe=bwa_exe, samtools_exe=samtools_exe,
                           ref=reference, output_bam=output_bam)
         prims = find_best_bwa(bam, region=reg, dbsnp=dbsnp, field=field, max_freq=max_freq)

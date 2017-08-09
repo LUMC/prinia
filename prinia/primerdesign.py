@@ -19,7 +19,9 @@ __author__ = 'ahbbollen'
 def primers_from_lovd(lovd_file, padding, product_size, n_prims, reference,
                       bwa_exe, samtools_exe, primer3_exe, output_bam, dbsnp,
                       field, max_freq, m13=False, m13_f="", m13_r="",
-                      strict=False, min_margin=10, ignore_errors=False):
+                      strict=False, min_margin=10, ignore_errors=False,
+                      **prim_args):
+    """**prim_args will be passed on to primer3"""
 
     variants = var_from_lovd(lovd_file)
     primers = []
@@ -32,7 +34,8 @@ def primers_from_lovd(lovd_file, padding, product_size, n_prims, reference,
                                               output_bam=output_bam,
                                               dbsnp=dbsnp, field=field,
                                               max_freq=max_freq, strict=strict,
-                                              min_margin=min_margin)
+                                              min_margin=min_margin,
+                                              **prim_args)
             primers.append(prims[0])
         except NoPrimersException:
             if ignore_errors:
@@ -48,7 +51,9 @@ def primers_from_lovd(lovd_file, padding, product_size, n_prims, reference,
 def primers_from_region(bed_path, padding, product_size, n_prims, reference,
                         bwa_exe, samtools_exe, primer3_exe, output_bam,
                         dbsnp, field, max_freq, m13=False, m13_f="",
-                        m13_r="", strict=False, min_margin=10):
+                        m13_r="", strict=False, min_margin=10,
+                        **prim_args):
+    """**prim_args will be passed on to primer3"""
     regions = []
     primers = []
     with open(bed_path, "rb") as bed:
@@ -64,7 +69,8 @@ def primers_from_region(bed_path, padding, product_size, n_prims, reference,
                                                  dbsnp=dbsnp, field=field,
                                                  max_freq=max_freq,
                                                  strict=strict,
-                                                 min_margin=min_margin)
+                                                 min_margin=min_margin,
+                                                 **prim_args)
             regions += regs
             primers += prims
 
@@ -139,10 +145,7 @@ def main():
     parser.add_argument("--strict", help="Enable strict mode. "
                                          "Primers with products larger than max product size will NOT be returned",
                         action="store_true")
-    parser.add_argument('--n_raw_primers', help="Amount of raw primers from primer3 output that will be considered. \
-                                                By default, only the top 4 primers (in each direction) will be considered. \
-                                                Increasing this value does not mean more primers \
-                                                will be returned; it simply increases the search space.",
+    parser.add_argument('--n_raw_primers', help="Legacy option. Will be ignored",
                         default=4, type=int)
 
     parser.add_argument('--m13', action="store_true", help="Output primers with m13 tails")
@@ -167,6 +170,19 @@ def main():
 
     parser.add_argument("--ignore-errors", help="Ignore errors", action="store_true")
 
+    parser.add_argument("--opt-primer-length",
+                        help="Optimum primer length (default = 25)",
+                        type=int, default=25)
+    parser.add_argument("--opt-gc-perc",
+                        help="Optimum primer GC percentage (default = 50)",
+                        type=int, default=50)
+    parser.add_argument("--min-melting-temperature",
+                        help="Minimum primer melting temperature (default = 58)",
+                        type=int, default=58)
+    parser.add_argument("--max-melting-temperature",
+                        help="Maximum primer melting temperature (default = 62)",
+                        type=int, default=62)
+
     args = parser.parse_args()
 
     if not args.lovd and not args.region:
@@ -180,6 +196,15 @@ def main():
 
     if args.field and not args.allele_freq:
         raise ValueError("Must set an allele frequency")
+
+    primer_args = {
+        "opt_primer_length": args.opt_primer_length,
+        "opt_gc_perc": args.opt_gc_perc,
+        "min_melting_t": args.min_melting_temperature,
+        "max_melting_t": args.max_melting_temperature,
+        "min_product_size": int(args.product_size.split("-")[0]),
+        "max_product_size": int(args.product_size.split("-")[1])
+    }
 
     primers = []
     if args.lovd and args.xml:

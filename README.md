@@ -55,6 +55,10 @@ usage: primerdesign [-h] (-l LOVD | --region REGION) [-p PADDING]
                     [-f FIELD] [-af ALLELE_FREQ] [-fq1 FQ1] [-fq2 FQ2] -R
                     REFERENCE --dbsnp DBSNP --primer3 PRIMER3 [--bwa BWA]
                     [--samtools SAMTOOLS] [--ignore-errors]
+                    [--opt-primer-length OPT_PRIMER_LENGTH]
+                    [--opt-gc-perc OPT_GC_PERC]
+                    [--min-melting-temperature MIN_MELTING_TEMPERATURE]
+                    [--max-melting-temperature MAX_MELTING_TEMPERATURE]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -77,11 +81,7 @@ optional arguments:
   --strict              Enable strict mode. Primers with products larger than
                         max product size will NOT be returned
   --n_raw_primers N_RAW_PRIMERS
-                        Amount of raw primers from primer3 output that will be
-                        considered. By default, only the top 4 primers (in
-                        each direction) will be considered. Increasing this
-                        value does not mean more primers will be returned; it
-                        simply increases the search space.
+                        Legacy option. Will be ignored
   --m13                 Output primers with m13 tails
   --m13-forward M13_FORWARD
                         Sequence of forward m13 tail
@@ -104,6 +104,14 @@ optional arguments:
   --bwa BWA             Path to BWA exe
   --samtools SAMTOOLS   Path to samtools exe
   --ignore-errors       Ignore errors
+  --opt-primer-length OPT_PRIMER_LENGTH
+                        Optimum primer length (default = 25)
+  --opt-gc-perc OPT_GC_PERC
+                        Optimum primer GC percentage (default = 50)
+  --min-melting-temperature MIN_MELTING_TEMPERATURE
+                        Minimum primer melting temperature (default = 58)
+  --max-melting-temperature MAX_MELTING_TEMPERATURE
+                        Maximum primer melting temperature (default = 62)
 
 ```
 
