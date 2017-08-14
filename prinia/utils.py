@@ -5,6 +5,7 @@ __author__ = 'ahbbollen'
 
 from datetime import datetime
 import hashlib
+import sys
 
 import vcf
 
@@ -54,7 +55,12 @@ class NoPrimersException(Exception):
 def datehash():
     a = datetime.utcnow()
     st = "{:f}".format((a-datetime(1970, 1, 1)).total_seconds())
-    hash = hashlib.md5(st).hexdigest()
+    if sys.version_info[0] == 2:
+        hash = hashlib.md5(st).hexdigest()
+    elif sys.version_info[0] == 3:
+        hash = hashlib.md5(st.encode("utf-8")).hexdigest()
+    else:
+        raise NotImplementedError
     return hash[:5]
 
 
