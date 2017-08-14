@@ -90,8 +90,8 @@ def generate_fastq_from_primers(primers, forward_path, reverse_path):
     :param primers:
     :return: 2-tuple of (path_R1, path_R2)
     """
-    forward_handle = open(forward_path, "wb")
-    reverse_handle = open(reverse_path, "wb")
+    forward_handle = open(forward_path, "w")
+    reverse_handle = open(reverse_path, "w")
 
     seqs = [primer_to_seq_record(x) for x in primers]
     forwards = [s[0] for s in seqs]
