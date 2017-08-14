@@ -86,7 +86,7 @@ class Primer3(object):
         handle.write(cfg_str)
 
     def run(self):
-        cfg = NamedTemporaryFile(delete=False)
+        cfg = NamedTemporaryFile(delete=False, mode="w")
         out = NamedTemporaryFile()
 
         self.create_config(cfg)
