@@ -4,7 +4,7 @@ from builtins import (ascii, bytes, chr, dict, filter, hex, input,
 __author__ = 'ahbbollen'
 
 from tempfile import NamedTemporaryFile
-from subprocess import check_call
+from subprocess import check_call, call
 import os
 import warnings
 
@@ -52,6 +52,24 @@ def run_primer3(sequence, region, padding=True,
     return primers
 
 
+def samtools_version_check(samtools_exe):
+    """Check whether samtools version >= 1.3.0"""
+    out = NamedTemporaryFile()
+
+    args = [samtools_exe, "--version"]
+    r = call(args, stdout=out)
+
+    if r != 0:  # old samtools versions do not have a version command
+        return False
+
+    with open(out.name, "r") as handle:
+        lines = handle.readlines()
+
+    version_line = lines[0]
+    version = tuple(map(int, version_line.strip().split(" ")[-1].split(".")))
+    return version >= (1, 3, 0)
+
+
 def aln_primers(primers, bwa_exe=None, samtools_exe=None, ref=None, output_bam=None):
     """
     Align primers with BWA. 
@@ -91,7 +109,10 @@ def aln_primers(primers, bwa_exe=None, samtools_exe=None, ref=None, output_bam=N
     if r != 0:
         raise ValueError("samtools view crashed with error code {0}".format(r))
 
-    final_args = [samtools_exe, 'sort', "-f", bam.name, output_bam]
+    if samtools_version_check(samtools_exe):
+        final_args = [samtools_exe, 'sort', '-O', 'bam', '-o', output_bam, bam.name]
+    else:
+        final_args = [samtools_exe, 'sort', "-f", bam.name, output_bam]
     r = check_call(final_args)
     if r != 0:
         raise ValueError("samtools sort crashed with error code {0}".format(r))
