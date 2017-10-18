@@ -8,6 +8,7 @@ from subprocess import check_call, call
 import os
 import warnings
 
+from Bio.Seq import Seq
 from pyfaidx import Fasta
 from pysam import AlignmentFile
 
@@ -153,13 +154,18 @@ def _has_alternative_alignments(aligned_segment):
     return "XA" in [x[0] for x in tags]
 
 
-def create_primer_from_pair(read1, read2, position=0):
+def create_primer_from_pair(read1, read2, position=0, reverse_as_complement=True):
     """Create primer from read pair"""
+    if reverse_as_complement:
+        seq = Seq(read2.query_sequence)
+        reverse_seq = str(seq.reverse_complement())
+    else:
+        reverse_seq = read2.query_sequence
     return Primer(
         chromosome=read1.reference_name,
         position=position,
         left=read1.query_sequence,
-        right=read2.query_sequence,
+        right=reverse_seq,
         left_pos=read1.reference_start,
         right_pos=read2.reference_start,
         left_len=read1.query_length,
