@@ -11,6 +11,7 @@ setup(
     author='sander bollen',
     author_email='a.h.b.bollen@lumc.nl',
     description='primer design',
+    include_package_data=True,
     entry_points={
         "console_scripts": [
             "primerdesign = prinia.primerdesign:main"
