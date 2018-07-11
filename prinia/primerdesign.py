@@ -163,7 +163,7 @@ def main():
                                                              "(qualities will be sanger-encoded 40)")
 
     parser.add_argument('-R', '--reference', help="Path to reference fasta file", default=None, required=True)
-    parser.add_argument('--dbsnp', help="Path to DBSNP vcf", default=None, required=True)
+    parser.add_argument('--dbsnp', help="Path to DBSNP vcf", default=None, required=False)
     parser.add_argument('--primer3', help="Path to primer3_core exe", default=None, required=True)
     parser.add_argument('--bwa', help="Path to BWA exe", default="bwa")
     parser.add_argument('--samtools', help="Path to samtools exe", default="samtools")

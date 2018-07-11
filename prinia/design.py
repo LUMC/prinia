@@ -240,7 +240,7 @@ def create_primers_bwa(bam_handle, variant=None, region=None):
 def find_best_bwa(bam, variant=None, region=None, accept_snp=False, field=None, max_freq=None, dbsnp=None):
     primers = []
     for primer in create_primers_bwa(bam, variant=variant, region=region):
-        if not accept_snp and max_freq is not None:
+        if not accept_snp and max_freq is not None and dbsnp is not None:
             prim = find_snps(primer, dbsnp, field)
             if prim.snp_freq <= max_freq:
                 primers.append(prim)
