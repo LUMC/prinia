@@ -5,7 +5,7 @@ setup(
     version='0.1',
     packages=['prinia'],
     install_requires=["biopython", "pysam", "pyfaidx",
-                      "fastools", "lxml", "pyvcf"],
+                      "lxml", "pyvcf"],
     url='',
     license='',
     author='sander bollen',
