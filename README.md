@@ -14,7 +14,6 @@ Furthermore, the following python packages are required:
 * biopython >= 1.66
 * lxml >= 3.4.4
 * pyfaidx >= 0.4.4
-* fastools >= 0.12.0
 * pyvcf >= 0.6.7 
 
 

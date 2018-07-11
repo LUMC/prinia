@@ -278,12 +278,17 @@ def find_snps(primer, db_snp=None, field="AF"):
     except:
         return None
 
+    if db_snp is None:
+        return None
+
     reader = vcf.Reader(filename=db_snp)
 
     left_end = int(primer.left_pos) + len(primer.left)
     right_end = int(primer.right_pos) + len(primer.right)
 
     contigs = list(reader.contigs.keys())
+    if len(contigs) == 0:
+        raise ValueError("The VCF file does not contain contigs in the header.")
     if "chr" in contigs[0] and not "chr" in primer.chromosome:
         chrom = "chr" + primer.chromosome
     elif "chr" in primer.chromosome and not "chr" in contigs[0]:

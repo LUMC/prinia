@@ -56,7 +56,7 @@ def primers_from_region(bed_path, padding, product_size, n_prims, reference,
     """**prim_args will be passed on to primer3"""
     regions = []
     primers = []
-    with open(bed_path, "rb") as bed:
+    with open(bed_path, "r") as bed:
         for line in bed:
             if line.startswith("track"):  # ignore tracklines
                 continue
@@ -273,6 +273,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
