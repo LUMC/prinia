@@ -14,7 +14,8 @@ from pysam import AlignmentFile
 
 from .models import Primer, Region
 from .primer3 import Primer3, parse_primer3_output
-from .utils import NoPrimersException, calc_gc, NEW_VCF, generate_fastq_from_primers
+from .utils import (NoPrimersException, calc_gc, NEW_VCF,
+                    generate_fastq_from_primers, is_at_least_version_samtools)
 
 PRIMER3_SCRIPT = os.path.join(os.path.join(os.path.dirname(__file__) ,"static"), 'getprimers.sh')
 
@@ -67,8 +68,12 @@ def samtools_version_check(samtools_exe):
         lines = handle.readlines()
 
     version_line = lines[0]
-    version = tuple(map(int, version_line.strip().split(" ")[-1].split(".")))
-    return version >= (1, 3, 0)
+    try:
+        is_at_least_version_samtools(version_line, (1, 3))
+    except ValueError:
+        warnings.warn("Could not determine samtools version. "
+                      "Assuming it is at least as recent as version 1.3")
+        return True
 
 
 def aln_primers(primers, bwa_exe=None, samtools_exe=None, ref=None, output_bam=None):
