@@ -1,9 +1,9 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='prinia',
     version='0.1',
-    packages=['prinia'],
+    packages=find_packages(),
     install_requires=["biopython", "pysam", "pyfaidx",
                       "lxml", "pyvcf"],
     url='',
