@@ -1,6 +1,4 @@
-from builtins import (ascii, bytes, chr, dict, filter, hex, input,
-                      map, next, oct, open, pow, range, round,
-                      str, super, zip)
+from builtins import (range, str)
 
 __author__ = 'ahbbollen'
 
@@ -48,14 +46,22 @@ class Variant(object):
             for k in dictionary.keys():
                 try:
                     setattr(x, k, dictionary[k][n])
-                except:
+                except:  # noqa
                     pass
 
             x.variant_on_genome = dictionary["VariantOnGenome/DNA"][n]
-            x.variant_on_transcript_dna = dictionary["VariantOnTranscript/DNA"][n]
-            x.variant_on_transcript_rna = dictionary["VariantOnTranscript/RNA"][n]
-            x.variant_on_transcript_protein = dictionary["VariantOnTranscript/Protein"][n]
-            x.variant_on_genome_origin = dictionary["VariantOnGenome/Genetic_origin"][n]
+            x.variant_on_transcript_dna = dictionary[
+                "VariantOnTranscript/DNA"
+            ][n]
+            x.variant_on_transcript_rna = dictionary[
+                "VariantOnTranscript/RNA"
+            ][n]
+            x.variant_on_transcript_protein = dictionary[
+                "VariantOnTranscript/Protein"
+            ][n]
+            x.variant_on_genome_origin = dictionary[
+                "VariantOnGenome/Genetic_origin"
+            ][n]
 
             if x.confirm_in_lab == "0":
                 x.confirm_in_lab = False
@@ -96,9 +102,10 @@ class Primer(object):
             setattr(self, kw, kv)
 
     @classmethod
-    def from_p3(cls, forward, reverse, fragment=None, chromosome=None, position=None):
+    def from_p3(cls, forward, reverse, fragment=None, chromosome=None,
+                position=None):
         # line looks like this:
-        #    0 CAGCACTGCTTGAGGGGAA                0 19  0 57.89 59.926  0.00  0.00 36.40  1.074
+        # 0 CAGCACTGCTTGAGGGGAA  0 19 0 57.89 59.926 0.00 0.00 36.40 1.074
         f_contents = [x for x in forward.strip().split(" ") if x]
         r_contents = [x for x in reverse.strip().split(" ") if x]
         primer = cls()
@@ -161,8 +168,10 @@ class Region(object):
 
     @classmethod
     def from_variant(cls, variant, padding_l=0, padding_r=0):
-        return cls(chromosome=variant.chromosome, acc_nr=variant.genomic_id_ncbi,
-                   start=variant.position_g_start, stop=variant.position_g_end,
+        return cls(chromosome=variant.chromosome,
+                   acc_nr=variant.genomic_id_ncbi,
+                   start=variant.position_g_start,
+                   stop=variant.position_g_end,
                    padding_left=padding_l,
                    padding_right=padding_r)
 
@@ -175,9 +184,14 @@ class Region(object):
         else:
             other = "NA"
 
-        return cls(chromosome=contents[0], acc_nr='NA',
-                   start=int(contents[1]), stop=int(contents[2]), padding_left=padding_l,
-                   padding_right=padding_r, ref=reference, other=other)
+        return cls(chromosome=contents[0],
+                   acc_nr='NA',
+                   start=int(contents[1]),
+                   stop=int(contents[2]),
+                   padding_left=padding_l,
+                   padding_right=padding_r,
+                   ref=reference,
+                   other=other)
 
     @classmethod
     def cut(cls, region, max_size, padded=False):

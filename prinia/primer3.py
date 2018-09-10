@@ -69,19 +69,17 @@ class Primer3(object):
                   "PRIMER_MIN_TM={it}\n" \
                   "PRIMER_MAX_TM={at}\n" \
                   "PRIMER_NUM_RETURN=200\n" \
-                  "=".format(
-            seq=self.template,
-            tar=self.target,
-            exc=self.excluded_region,
-            gc=self.opt_gc_perc,
-            size=self.opt_prim_length,
-            isize=self.opt_prim_length-5,
-            asize=self.opt_prim_length+5,
-            range=self.range,
-            osize=self.opt_size,
-            it=self.min_melting_t,
-            at=self.max_melting_t
-        )
+                  "=".format(seq=self.template, tar=self.target,
+                             exc=self.excluded_region,
+                             gc=self.opt_gc_perc,
+                             size=self.opt_prim_length,
+                             isize=self.opt_prim_length-5,
+                             asize=self.opt_prim_length+5,
+                             range=self.range,
+                             osize=self.opt_size,
+                             it=self.min_melting_t,
+                             at=self.max_melting_t
+                             )
 
         handle.write(cfg_str)
 
@@ -93,7 +91,7 @@ class Primer3(object):
         cfg.close()
         args = [self.primer3_exe, "-output", out.name, cfg.name]
 
-        _ = check_call(args)
+        _ = check_call(args)  # noqa
 
         retval = []
         with open(out.name) as handle:

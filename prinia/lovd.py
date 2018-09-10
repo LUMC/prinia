@@ -1,6 +1,4 @@
-from builtins import (ascii, bytes, chr, dict, filter, hex, input,
-                      map, next, oct, open, pow, range, round,
-                      str, super, zip)
+from builtins import (map, open, str, zip)
 
 __author__ = 'ahbbollen'
 
@@ -39,7 +37,9 @@ def var_from_lovd(path):
             elif seen_header:
                 data_lines += 1
                 contents = line.split("\t")
-                assert len(contents) == len(d.keys()), "Different amount of values in data line?"
+                if len(contents) != len(d.keys()):
+                    raise ValueError("Number of data fields does not "
+                                     "match number of headers.")
                 for header, field in zip(d.keys(), contents):
                     if field.strip('""'):
                         d[header].append(field.strip('""'))
@@ -52,7 +52,3 @@ def var_from_lovd(path):
     comments["n_line"] = data_lines
 
     return Variant.from_dict(d, comments)
-
-
-
-

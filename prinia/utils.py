@@ -1,6 +1,4 @@
-from builtins import (ascii, bytes, chr, dict, filter, hex, input,
-                      map, next, oct, open, pow, range, round,
-                      str, super, zip)
+from builtins import (open, range)
 __author__ = 'ahbbollen'
 
 from datetime import datetime
@@ -18,7 +16,8 @@ from Bio.Alphabet import NucleotideAlphabet
 
 def _is_vcf_version_at_least_0_6_8():
     """
-    The behaviour of vcfReader.fetch changed significantly from version 0.6.8 onwards
+    The behaviour of vcfReader.fetch changed significantly from version 0.6.8
+    onwards.
     :return: boolean
     """
     major, minor, patch = vcf.VERSION.split(".")
@@ -134,6 +133,3 @@ def generate_fastq_from_primers(primers, forward_path, reverse_path):
     reverse_handle.close()
 
     return forward_path, reverse_path
-
-
-

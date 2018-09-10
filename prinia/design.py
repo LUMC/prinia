@@ -1,6 +1,4 @@
-from builtins import (ascii, bytes, chr, dict, filter, hex, input,
-                      map, next, oct, open, pow, range, round,
-                      str, super, zip)
+from builtins import (map, open, str)
 __author__ = 'ahbbollen'
 
 from tempfile import NamedTemporaryFile
@@ -17,7 +15,8 @@ from .primer3 import Primer3, parse_primer3_output
 from .utils import (NoPrimersException, calc_gc, NEW_VCF,
                     generate_fastq_from_primers, is_at_least_version_samtools)
 
-PRIMER3_SCRIPT = os.path.join(os.path.join(os.path.dirname(__file__) ,"static"), 'getprimers.sh')
+PRIMER3_SCRIPT = os.path.join(os.path.join(os.path.dirname(__file__),
+                                           "static"), 'getprimers.sh')
 
 
 def get_sequence_fasta(region, reference=None, padding=True):
@@ -76,16 +75,17 @@ def samtools_version_check(samtools_exe):
         return True
 
 
-def aln_primers(primers, bwa_exe=None, samtools_exe=None, ref=None, output_bam=None):
+def aln_primers(primers, bwa_exe=None, samtools_exe=None, ref=None,
+                output_bam=None):
     """
-    Align primers with BWA. 
-    This only works with BWA-ALN due to the short read length. 
+    Align primers with BWA.
+    This only works with BWA-ALN due to the short read length.
     :param primers: List of primers
     :param bwa_exe: Path to BWA
     :param samtools_exe: Path to samtools
     :param ref: Path to reference fasta
     :param output_bam: Path to final bam file
-    :return: instance of pysam.AlignmentFile 
+    :return: instance of pysam.AlignmentFile
     """
     fq1 = NamedTemporaryFile()
     fq2 = NamedTemporaryFile()
@@ -104,7 +104,8 @@ def aln_primers(primers, bwa_exe=None, samtools_exe=None, ref=None, output_bam=N
         raise ValueError("bwa aln crashed with error code {0}".format(r))
 
     sam = NamedTemporaryFile()
-    sam_args = [bwa_exe, 'sampe', ref, sai1.name, sai2.name, fq1.name, fq2.name]
+    sam_args = [bwa_exe, 'sampe', ref, sai1.name, sai2.name, fq1.name,
+                fq2.name]
     r = check_call(sam_args, stdout=sam)
     if r != 0:
         raise ValueError("bwa sampe crashed with error code {0}".format(r))
@@ -113,20 +114,27 @@ def aln_primers(primers, bwa_exe=None, samtools_exe=None, ref=None, output_bam=N
     bam_args = [samtools_exe, 'view', '-Shb', sam.name]
     r = check_call(bam_args, stdout=bam)
     if r != 0:
-        raise ValueError("samtools view crashed with error code {0}".format(r))
+        raise ValueError(
+            "samtools view crashed with error code {0}".format(r)
+        )
 
     if samtools_version_check(samtools_exe):
-        final_args = [samtools_exe, 'sort', '-O', 'bam', '-o', output_bam, bam.name]
+        final_args = [samtools_exe, 'sort', '-O', 'bam', '-o', output_bam,
+                      bam.name]
     else:
         final_args = [samtools_exe, 'sort', "-f", bam.name, output_bam]
     r = check_call(final_args)
     if r != 0:
-        raise ValueError("samtools sort crashed with error code {0}".format(r))
+        raise ValueError(
+            "samtools sort crashed with error code {0}".format(r)
+        )
 
     index_args = [samtools_exe, "index", output_bam]
     r = check_call(index_args)
     if r != 0:
-        raise ValueError("samtools index crashed with error code {0}".format(r))
+        raise ValueError(
+            "samtools index crashed with error code {0}".format(r)
+        )
 
     # cleanup
     for i in [fq1, fq2, sai1, sai2, sam, bam]:
@@ -159,7 +167,8 @@ def _has_alternative_alignments(aligned_segment):
     return "XA" in [x[0] for x in tags]
 
 
-def create_primer_from_pair(read1, read2, position=0, reverse_as_complement=True):
+def create_primer_from_pair(read1, read2, position=0,
+                            reverse_as_complement=True):
     """Create primer from read pair"""
     if reverse_as_complement:
         seq = Seq(read2.query_sequence)
@@ -182,11 +191,11 @@ def create_primer_from_pair(read1, read2, position=0, reverse_as_complement=True
 
 def create_primers_bwa(bam_handle, variant=None, region=None):
     """
-    Find correct pairs in a bam file containing primers for a variant or region    
+    Find correct pairs in a bam file containing primers for a variant or region
     This requires to hold the bam file in memory. Use only with small bam files
     :param bam_handle: pysam.AlignmentFile instance
     :param variant: variant
-    :param region: region 
+    :param region: region
     :return: generator of primers
     """
     if variant is not None and region is not None:
@@ -236,13 +245,16 @@ def create_primers_bwa(bam_handle, variant=None, region=None):
             continue
 
         if variant is not None:
-            yield create_primer_from_pair(pair['r1'], pair['r2'], variant.position_g_start)
+            yield create_primer_from_pair(pair['r1'], pair['r2'],
+                                          variant.position_g_start)
         else:
-            position = int(region.start) + int((float((int(region.stop) - int(region.start)))/2))
+            position = int(region.start) + int((float(
+                (int(region.stop) - int(region.start)))/2))
             yield create_primer_from_pair(pair['r1'], pair['r2'], position)
 
 
-def find_best_bwa(bam, variant=None, region=None, accept_snp=False, field=None, max_freq=None, dbsnp=None):
+def find_best_bwa(bam, variant=None, region=None, accept_snp=False,
+                  field=None, max_freq=None, dbsnp=None):
     primers = []
     for primer in create_primers_bwa(bam, variant=variant, region=region):
         if not accept_snp and max_freq is not None and dbsnp is not None:
@@ -280,7 +292,7 @@ def _freq_in_query(query, field):
 def find_snps(primer, db_snp=None, field="AF"):
     try:
         import vcf
-    except:
+    except ImportError:
         return None
 
     if db_snp is None:
@@ -293,10 +305,12 @@ def find_snps(primer, db_snp=None, field="AF"):
 
     contigs = list(reader.contigs.keys())
     if len(contigs) == 0:
-        raise ValueError("The VCF file does not contain contigs in the header.")
-    if "chr" in contigs[0] and not "chr" in primer.chromosome:
+        raise ValueError(
+            "The VCF file does not contain contigs in the header."
+        )
+    if "chr" in contigs[0] and "chr" not in primer.chromosome:
         chrom = "chr" + primer.chromosome
-    elif "chr" in primer.chromosome and not "chr" in contigs[0]:
+    elif "chr" in primer.chromosome and "chr" not in contigs[0]:
         chrom = primer.chromosome.split("chr")[1]
     else:
         chrom = primer.chromosome
@@ -308,7 +322,8 @@ def find_snps(primer, db_snp=None, field="AF"):
 
     left_n, left_freqs = _freq_in_query(query, field)
 
-    # can't have two pysam queries open at the same time, so have to do this this way
+    # can't have two pysam queries open at the same time,
+    # so have to do this this way
     if NEW_VCF:
         right_query = reader.fetch(chrom, int(primer.right_pos), right_end)
     else:
@@ -336,8 +351,10 @@ def chop_region(region, size):
     """
     if len(region) <= size:
         return [region]
-    first = Region(chromosome=region.chr, start=region.start, stop=region.start+size,
-                   acc_nr=region.acc_nr, padding_left=region.padding_left, padding_right=region.padding_right,
+    first = Region(chromosome=region.chr, start=region.start,
+                   stop=region.start+size,
+                   acc_nr=region.acc_nr, padding_left=region.padding_left,
+                   padding_right=region.padding_right,
                    other=region.other_information)
     regions = [first]
     while sum([len(x) for x in regions]) < len(region):
@@ -347,8 +364,10 @@ def chop_region(region, size):
         else:
             stop = last.stop + size
 
-        nex = Region(chromosome=region.chr, start=last.stop, stop=stop, acc_nr=region.acc_nr,
-                     padding_left=region.padding_left, padding_right=region.padding_right,
+        nex = Region(chromosome=region.chr, start=last.stop,
+                     stop=stop, acc_nr=region.acc_nr,
+                     padding_left=region.padding_left,
+                     padding_right=region.padding_right,
                      other=region.other_information)
         regions.append(nex)
     return regions
@@ -375,23 +394,30 @@ def get_primer_from_region(region, reference, product_size, n_prims,
                                   product_size=product_size,
                                   n_primers=n_prims, prim3_exe=primer3_exe,
                                   **prim_args)
-        bam = aln_primers(raw_primers, bwa_exe=bwa_exe, samtools_exe=samtools_exe,
+        bam = aln_primers(raw_primers, bwa_exe=bwa_exe,
+                          samtools_exe=samtools_exe,
                           ref=reference, output_bam=output_bam)
-        prims = find_best_bwa(bam, region=reg, dbsnp=dbsnp, field=field, max_freq=max_freq)
+        prims = find_best_bwa(bam, region=reg, dbsnp=dbsnp, field=field,
+                              max_freq=max_freq)
         tmp_reg = []
         tmp_prim = []
 
         # filter out primers too close to the variant
         for primer in prims:
-            if not (int(primer.left_pos) + int(primer.left_len) + min_margin) < int(reg.start):
+            if not (int(primer.left_pos) + int(primer.left_len) + min_margin
+                    ) < int(reg.start):
                 continue
             if not (int(primer.right_pos) - min_margin) > int(reg.stop):
                 continue
 
-            n_region = Region(start=int(primer.left_pos), stop=int(primer.right_pos)+len(primer.right),
-                              chromosome=primer.chromosome, padding_left=0, padding_right=0,
+            n_region = Region(start=int(primer.left_pos),
+                              stop=int(primer.right_pos)+len(primer.right),
+                              chromosome=primer.chromosome,
+                              padding_left=0, padding_right=0,
                               acc_nr="NA", other="NA")
-            primer.fragment_sequence = get_sequence_fasta(n_region, reference=reference, padding=False)
+            primer.fragment_sequence = get_sequence_fasta(n_region,
+                                                          reference=reference,
+                                                          padding=False)
             if strict and len(primer.fragment_sequence) > max_length:
                 continue
             else:

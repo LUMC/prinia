@@ -1,7 +1,3 @@
-from builtins import (ascii, bytes, chr, dict, filter, hex, input,
-                      map, next, oct, open, pow, range, round,
-                      str, super, zip)
-
 """
 Parsing of Miracle XML files
 """
@@ -12,11 +8,13 @@ from io import StringIO
 from datetime import datetime
 from lxml import etree
 
-DEFAULT_XSD = os.path.join(os.path.join(os.path.dirname(__file__), "static"), 'variant.xsd')
-REGION_XSD = os.path.join(os.path.join(os.path.dirname(__file__), "static"), 'region.xsd')
-
-from .models import *
+from .models import Variant, Primer
 from .utils import calc_gc, datehash
+
+DEFAULT_XSD = os.path.join(os.path.join(os.path.dirname(__file__), "static"),
+                           'variant.xsd')
+REGION_XSD = os.path.join(os.path.join(os.path.dirname(__file__), "static"),
+                          'region.xsd')
 
 try:
     from itertools import zip_longest as longzip
@@ -95,7 +93,8 @@ def miracle_to_primer_and_var(xml, xsd=DEFAULT_XSD):
             var.allele = 'Heterozygous'
         elif item.find('UITSLAG_CODE').text == 'HOM':
             var.allele = 'Homozygous'
-        # FIXME: should include cases of maternally hemizygous and paternally hemizygous
+        # FIXME: should include cases of maternally hemizygous and
+        # paternally hemizygous
         else:
             var.allele = 'NA'
 
@@ -182,15 +181,19 @@ def primer_to_xml(root, prim, var):
     return root
 
 
-def vars_and_primers_to_xml(variants, primers, xml_path=None, xsd=DEFAULT_XSD, old=True):
+def vars_and_primers_to_xml(variants, primers, xml_path=None, xsd=DEFAULT_XSD,
+                            old=True):
     panel = int(variants[0].in_gene_panel) == 1
 
     if old:
-        xsd = os.path.join(os.path.join(os.path.dirname(__file__), 'static'), 'variant.xsd')
+        xsd = os.path.join(os.path.join(os.path.dirname(__file__), 'static'),
+                           'variant.xsd')
     else:
-        xsd = os.path.join(os.path.join(os.path.dirname(__file__), 'static'), 'variant_new.xsd')
+        xsd = os.path.join(os.path.join(os.path.dirname(__file__), 'static'),
+                           'variant_new.xsd')
 
-    document, results = common_xml(variants[0].miracle_id, variants[0].datum, panel, old=old)
+    document, results = common_xml(variants[0].miracle_id, variants[0].datum,
+                                   panel, old=old)
     i = 1
 
     for var, prim in longzip(variants, primers, fillvalue=None):
@@ -218,7 +221,7 @@ def vars_and_primers_to_xml(variants, primers, xml_path=None, xsd=DEFAULT_XSD, o
         name = etree.SubElement(gene, "NAAM")
         name.text = var.gene_name
 
-        loc = etree.SubElement(gene, "LOCATIE")
+        loc = etree.SubElement(gene, "LOCATIE")  # noqa
         build = etree.SubElement(variant, "BUILD")
         build.text = var.refseq_build
 
@@ -244,9 +247,11 @@ def vars_and_primers_to_xml(variants, primers, xml_path=None, xsd=DEFAULT_XSD, o
 
         if prim is not None:
             frag_len = etree.SubElement(prims, "FRAGMENT_LENGTH")
-            # fragment is the region between the end of the forward primer, and the start of the reverse primer
+            # fragment is the region between the end of the forward primer,
+            #  and the start of the reverse primer
 
-            frag_len.text = str(int(prim.right_pos) - (int(prim.left_pos) + len(prim.left)))
+            frag_len.text = str(int(prim.right_pos) - (int(prim.left_pos) +
+                                                       len(prim.left)))
 
             gc_perc = etree.SubElement(prims, "GC_PERC")
 
@@ -254,7 +259,7 @@ def vars_and_primers_to_xml(variants, primers, xml_path=None, xsd=DEFAULT_XSD, o
                 gc_perc.text = str(int(calc_gc(prim.fragment_sequence)))
             except ValueError:
                 gc_perc.text = '0'
-            _ = primer_to_xml(prims, prim, var)
+            _ = primer_to_xml(prims, prim, var)  # noqa
         else:
             comment = etree.SubElement(uitslag, "OPMERKING")
             comment.text = "NO PRIMERS FOUND"
@@ -308,11 +313,15 @@ def vars_and_primers_to_xml(variants, primers, xml_path=None, xsd=DEFAULT_XSD, o
     return xml
 
 
-def regions_and_primers_to_xml(variants, primers, xml_path=None, xsd=REGION_XSD, sample='', build="GRCh37", old=True):
+def regions_and_primers_to_xml(variants, primers, xml_path=None,
+                               xsd=REGION_XSD, sample='', build="GRCh37",
+                               old=True):
     if old:
-        xsd = os.path.join(os.path.join(os.path.dirname(__file__), 'static'),'region.xsd')
+        xsd = os.path.join(os.path.join(os.path.dirname(__file__), 'static'),
+                           'region.xsd')
     else:
-        xsd = os.path.join(os.path.join(os.path.dirname(__file__), 'static'), 'region_new.xsd')
+        xsd = os.path.join(os.path.join(os.path.dirname(__file__), 'static'),
+                           'region_new.xsd')
     document, results = common_xml(sample, '', old=old)
     i = 1
 
@@ -333,8 +342,10 @@ def regions_and_primers_to_xml(variants, primers, xml_path=None, xsd=REGION_XSD,
         code = etree.SubElement(gene, "CODE")
         if region.other_information != "NA":
             try:
-                code.text = region.other_information.split(",")[0].split("|")[0]
-            except:
+                code.text = region.other_information.split(
+                    ","
+                )[0].split("|")[0]
+            except IndexError:
                 code.text = ""
         else:
             code.text = ""
@@ -357,7 +368,8 @@ def regions_and_primers_to_xml(variants, primers, xml_path=None, xsd=REGION_XSD,
         if "NA" in region.other_information:
             f_code.text = prim.left_name + "." + datehash()
         else:
-            f_code.text = region.other_information.split("|")[0] + "_F." + datehash()
+            f_code.text = (region.other_information.split("|")[0] + "_F." +
+                           datehash())
         f_seq = etree.SubElement(primer_f, "SEQUENTIE")
         f_seq.text = prim.left
         f_coord = etree.SubElement(primer_f, "COORDINATE")
@@ -368,7 +380,8 @@ def regions_and_primers_to_xml(variants, primers, xml_path=None, xsd=REGION_XSD,
         if "NA" in region.other_information:
             r_code.text = prim.right_name + "." + datehash()
         else:
-            r_code.text = region.other_information.split("|")[0] + "_R." + datehash()
+            r_code.text = (region.other_information.split("|")[0] + "_R." +
+                           datehash())
         r_seq = etree.SubElement(primer_r, "SEQUENTIE")
         r_seq.text = prim.right
         r_coord = etree.SubElement(primer_r, "COORDINATE")
