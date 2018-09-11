@@ -68,7 +68,7 @@ def samtools_version_check(samtools_exe):
 
     version_line = lines[0]
     try:
-        is_at_least_version_samtools(version_line, (1, 3))
+        return is_at_least_version_samtools(version_line, (1, 3))
     except ValueError:
         warnings.warn("Could not determine samtools version. "
                       "Assuming it is at least as recent as version 1.3")
