@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "JSON schema for settings for primer3 for prinia",
+  "type": "object",
+  "properties": {
+    "primer_min_gc":  {
+      "description": "Minimum GC-percentage of primers",
+      "type": "number",
+      "default": 20
+    },
+    "primer_internal_min_gc": {
+      "description": "Equivalent parameter of primer_min_gc for the internal oligo.",
+      "type": "number",
+      "default": 20
+    },
+    "primer_opt_gc_percent": {
+      "description": "Optimum GC-percentage of primers",
+      "type": "number",
+      "default": 50
+    },
+    "primer_max_gc": {
+      "description": "Maximum GC-percentage of primers.",
+      "type": "number",
+      "default": 80
+    },
+    "primer_internal_mac_gc": {
+      "description": "Equivalent parameter of primer_max_gc for the internal oligo.",
+      "type": "number",
+      "default": 80
+    },
+    "primer_wt_gc_percent_lt": {
+      "description": "Penalty weight for primers with GC-percentage lower than primer_opt_gc_percent",
+      "type": "number",
+      "default": 0
+    },
+    "primer_internal_wt_gc_percent_lt": {
+      "description": "Equivalent parameter of primer_wt_gc_percent_lt for the interal oligo.",
+      "type": "number",
+      "default": 0
+    },
+    "primer_wt_gc_percent_gt": {
+      "description": "Penality weight for primers with GC-percentage higher than primer_opt_gc_percent",
+      "type": "number",
+      "default": 0
+    },
+    "primer_internal_wt_gc_percent_gt": {
+      "description": "Equivalent parameter of primer_wt_gc_percent_gt for the internal oligo.",
+      "type": "number",
+      "default": 0
+    },
+    "primer_gc_clamp": {
+      "description": "Require the specified number of consecutive Gs and Cs at the 3' end of both the left and right primer.",
+      "type": "integer",
+      "default": 0
+    },
+    "primer_max_end_gc": {
+      "description": "The maximum number of Gs or Cs allowed in the last five 3' bases of a left or right primer.",
+      "type": "integer",
+      "default": 5
+    },
+    "primer_opt_size": {
+      "description": "Optimum size of primers in bases.",
+      "type": "integer",
+      "default": 25
+    },
+    "primer_min_size": {
+      "description": "Minimum size of primers in bases.",
+      "type": "integer",
+      "default": 20
+    },
+    "primer_max_size": {
+      "description": "Maximum size of primers in bases.",
+      "type": "integer",
+      "default": 30
+    },
+    "primer_max_ns_accepted": {
+      "description": "Maximum number of unknown bases (N) accepted in a primer",
+      "type": "integer",
+      "default:": 0
+    },
+    "primer_product_size_range": {
+      "description": "Accepted size range of the product size.",
+      "type": "string",
+      "default": "200-450",
+      "pattern": "^\d+\-\d+$"
+    },
+    "primer_product_opt_size": {
+      "description": "Optimum size of product. Will default to the midpoint in primer_product_size_range unless specified",
+      "type": "integer",
+      "default": 325
+    },
+    "primer_pair_wt_product_size_gt": {
+      "description": "Penalty weight for products larger than primer_product_opt_size",
+      "type": "number",
+      "default": 0.1
+    },
+    "primer_pair_wt_product_size_lt": {
+      "description": "Penalty weight for products smaller than primer_product_opt_size",
+      "type": "number",
+      "default": 0.1
+    },
+    "primer_min_tm": {
+      "description": "Minimum melting temperature of primer degrees Celsius",
+      "type": "number",
+      "default": 58
+    },
+    "primer_max_tm": {
+      "description": "Maximum melting temperature in degrees Celsius",
+      "type": "number",
+      "default": 62
+    },
+    "primer_num_return": {
+      "description": "Number of returned primers. Increase to increase search space",
+      "type": "integer",
+      "default": 200
+    }
+  }
+}
