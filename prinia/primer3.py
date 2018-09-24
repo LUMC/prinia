@@ -1,10 +1,66 @@
+"""
+prinia.primer3
+~~~~~~~~~~~~~~
+
+:copyright: (c) 2017-2018 Sander Bollen
+:copyright: (c) 2017-2018 Leiden University Medical Center
+:license: MIT
+"""
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from subprocess import check_call
+from typing import Optional
 import os
+import json
 
 import re
 
+from jsonschema import validate
+
 from .models import Primer
+
+
+SETTINGS_SCHEMA = (Path(__file__).parent / Path("static") /
+                   Path("primer3_settings_schema.json"))
+
+
+def parse_settings(settings_file: Optional[Path] = None) -> dict:
+    """
+    Parse settings file to settings dictionary.
+
+    Parameters not specified in settings_file will be taken from default values
+    in schema. If settings_file is None, all values will be the default values
+    in schema
+    :param settings_file: Optional path to settings file
+    :return: dict with settings
+    :raises: ValidationError if settings_file does not conform to schema
+    """
+    with SETTINGS_SCHEMA.open("r") as schema_handle:
+        schema_dict = json.load(schema_handle)
+
+    defaults = {k: v['default'] for k, v in schema_dict['properties'].items()}
+
+    if settings_file is None:
+        return defaults
+
+    with settings_file.open("r") as settings_handle:
+        settings_dict = json.load(settings_handle)
+
+    validate(settings_dict, schema_dict)  # raises ValidationError if failure
+
+    default_keys = defaults.keys() - settings_dict.keys()
+    default_dict = {k: defaults[k] for k in default_keys}
+    generated_dict = {**settings_dict, **default_dict}
+
+    # if range is set, but optimum size is not, calculate opt size
+    if ('primer_product_opt_size' in default_dict and
+            "primer_product_size_range" in settings_dict):
+        product_range = settings_dict['primer_product_size_range']
+        min_size, max_size = product_range.split("-")
+        opt_size = int((int(min_size) + (int(max_size) - int(min_size))) // 2)
+        generated_dict['primer_product_opt_size'] = opt_size
+
+    return generated_dict
 
 
 class Primer3(object):

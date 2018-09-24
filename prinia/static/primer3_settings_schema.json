@@ -95,7 +95,7 @@
     "primer_max_ns_accepted": {
       "description": "Maximum number of unknown bases (N) accepted in a primer",
       "type": "integer",
-      "default:": 0,
+      "default": 0,
       "minimum": 0
     },
     "primer_product_size_range": {
