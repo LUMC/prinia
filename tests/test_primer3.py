@@ -54,11 +54,57 @@ def test_none_settings():
 
 def test_complete_settings(valid_settings):
     parsed = parse_settings(valid_settings)
-
-    # TODO: work out
+    assert parsed == {
+        "primer_min_gc": 30,
+        "primer_internal_min_gc": 30,
+        "primer_opt_gc_percent": 51,
+        "primer_max_gc": 81,
+        "primer_internal_max_gc": 81,
+        "primer_wt_gc_percent_lt": 0.12,
+        "primer_internal_wt_gc_percent_lt": 0.12,
+        "primer_wt_gc_percent_gt": 0.12,
+        "primer_internal_wt_gc_percent_gt": 0.12,
+        "primer_gc_clamp": 1,
+        "primer_max_end_gc": 0,
+        "primer_opt_size": 21,
+        "primer_min_size": 19,
+        "primer_max_size": 29,
+        "primer_max_ns_accepted": 1,
+        "primer_product_size_range": "300-500",
+        "primer_product_opt_size": 300,
+        "primer_pair_wt_product_size_gt": 0.12,
+        "primer_pair_wt_product_size_lt": 0.12,
+        "primer_min_tm": 55,
+        "primer_max_tm": 75,
+        "primer_num_return": 100
+    }
 
 
 def test_partial_settings(valid_partial_settings):
     parsed = parse_settings(valid_partial_settings)
 
-    # TODO: work out
+    assert parsed == {
+        "primer_min_gc": 20,
+        "primer_internal_min_gc": 20,
+        "primer_opt_gc_percent": 50,
+        "primer_max_gc": 80,
+        "primer_internal_max_gc": 80,
+        "primer_wt_gc_percent_lt": 0,
+        "primer_internal_wt_gc_percent_lt": 0,
+        "primer_wt_gc_percent_gt": 0,
+        "primer_internal_wt_gc_percent_gt": 0,
+        "primer_gc_clamp": 1,
+        "primer_max_end_gc": 0,
+        "primer_opt_size": 21,
+        "primer_min_size": 19,
+        "primer_max_size": 29,
+        "primer_max_ns_accepted": 1,
+        "primer_product_size_range": "300-500",
+        "primer_product_opt_size": 400,
+        "primer_pair_wt_product_size_gt": 0.12,
+        "primer_pair_wt_product_size_lt": 0.12,
+        "primer_min_tm": 55,
+        "primer_max_tm": 75,
+        "primer_num_return": 100
+    }
+

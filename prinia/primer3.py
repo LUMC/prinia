@@ -57,7 +57,7 @@ def parse_settings(settings_file: Optional[Path] = None) -> dict:
             "primer_product_size_range" in settings_dict):
         product_range = settings_dict['primer_product_size_range']
         min_size, max_size = product_range.split("-")
-        opt_size = int((int(min_size) + (int(max_size) - int(min_size))) // 2)
+        opt_size = int((int(min_size) + (int(max_size) - int(min_size)) // 2))
         generated_dict['primer_product_opt_size'] = opt_size
 
     return generated_dict
