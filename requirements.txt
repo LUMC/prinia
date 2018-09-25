@@ -5,3 +5,4 @@ pysam
 pyfaidx
 pyvcf
 jsonschema>=2.6.0
+Jinja2>=2.9.5
