@@ -8,7 +8,7 @@ test_primer3.py
 """
 from pathlib import Path
 import pytest
-from prinia.primer3 import parse_settings, create_primer3_config
+from prinia.primer3 import parse_settings, create_primer3_config, Primer3
 
 
 data_dir = Path(__file__).parent / Path("data")
@@ -131,3 +131,18 @@ def test_primer3_configuration(settings_json, conf):
         expected_conf = chandle.read().strip()
 
     assert generated_conf == expected_conf
+
+
+@pytest.fixture
+def rCRS():
+    rCRS_path = data_dir / Path("rCRS.fa")
+    with rCRS_path.open("r") as handle:
+        lines = handle.readlines()
+    return "".join(list(map(str.strip, lines[1:])))
+
+
+@pytest.mark.parametrize("settings_json, ignored", configuration_data)
+def test_primer3_run_non_failing(settings_json, ignored, rCRS):
+    # assumes primer3_core is on the PATH
+    p = Primer3("primer3_core", rCRS, "3300-3400", "3200-3500", settings_json)
+    p.run()
