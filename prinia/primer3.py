@@ -15,6 +15,7 @@ import json
 
 import re
 
+from jinja2 import Template
 from jsonschema import validate
 
 from .models import Primer
@@ -22,9 +23,11 @@ from .models import Primer
 
 SETTINGS_SCHEMA = (Path(__file__).parent / Path("static") /
                    Path("primer3_settings_schema.json"))
+TEMPLATE = Path(__file__).parent / Path("static") / Path("primer3_conf.j2")
 
 
-def parse_settings(settings_file: Optional[Path] = None) -> dict:
+def parse_settings(settings_file: Optional[Path] = None,
+                   settings_schema: Path = SETTINGS_SCHEMA) -> dict:
     """
     Parse settings file to settings dictionary.
 
@@ -32,10 +35,12 @@ def parse_settings(settings_file: Optional[Path] = None) -> dict:
     in schema. If settings_file is None, all values will be the default values
     in schema
     :param settings_file: Optional path to settings file
+    :param settings_schema: Path to schema json for settings. Default is
+    supplied schema in static/primer3_settings_schema.json
     :return: dict with settings
     :raises: ValidationError if settings_file does not conform to schema
     """
-    with SETTINGS_SCHEMA.open("r") as schema_handle:
+    with settings_schema.open("r") as schema_handle:
         schema_dict = json.load(schema_handle)
 
     defaults = {k: v['default'] for k, v in schema_dict['properties'].items()}
@@ -61,6 +66,25 @@ def parse_settings(settings_file: Optional[Path] = None) -> dict:
         generated_dict['primer_product_opt_size'] = opt_size
 
     return generated_dict
+
+
+def create_primer3_config(settings_dict: dict,
+                          sequence_template: str,
+                          sequence_target: str,
+                          excluded_region: str,
+                          template_path: Path = TEMPLATE) -> str:
+    """Create primer3 configuration from jinja2 template and settings_dict"""
+    with template_path.open("r") as thandle:
+        template = Template(thandle.read())
+
+    return template.render(
+        {
+            "seq": sequence_template,
+            "target": sequence_target,
+            "excluded_region": excluded_region,
+            "settings": settings_dict
+        }
+    )
 
 
 class Primer3(object):

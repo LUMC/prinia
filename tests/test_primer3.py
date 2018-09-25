@@ -7,19 +7,19 @@ test_primer3.py
 :license: MIT
 """
 from pathlib import Path
-from pytest import fixture
-
-from prinia.primer3 import parse_settings
+import pytest
+from prinia.primer3 import parse_settings, create_primer3_config
 
 
 data_dir = Path(__file__).parent / Path("data")
 
-@fixture
+
+@pytest.fixture
 def valid_settings():
     return data_dir / Path("valid_settings.json")
 
 
-@fixture
+@pytest.fixture
 def valid_partial_settings():
     return data_dir / Path("valid_partial_settings.json")
 
@@ -108,3 +108,26 @@ def test_partial_settings(valid_partial_settings):
         "primer_num_return": 100
     }
 
+
+configuration_data = [
+    (None, data_dir / Path("primer3_conf_default.txt")),
+    (
+        data_dir / Path("valid_settings.json"),
+        data_dir / Path("primer3_conf_full_settings.txt")
+    ),
+    (
+        data_dir / Path("valid_partial_settings.json"),
+        data_dir / Path("primer3_conf_partial_settings.txt")
+    )
+]
+
+
+@pytest.mark.parametrize("settings_json, conf", configuration_data)
+def test_primer3_configuration(settings_json, conf):
+    parsed_settings = parse_settings(settings_json)
+    generated_conf = create_primer3_config(parsed_settings, "ACTG",
+                                           "50-60", "50-60")
+    with conf.open("r") as chandle:
+        expected_conf = chandle.read().strip()
+
+    assert generated_conf == expected_conf
