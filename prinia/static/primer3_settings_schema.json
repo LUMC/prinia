@@ -51,7 +51,7 @@
       "minimum": 0
     },
     "primer_wt_gc_percent_gt": {
-      "description": "Penality weight for primers with GC-percentage higher than primer_opt_gc_percent",
+      "description": "Penalty weight for primers with GC-percentage higher than primer_opt_gc_percent",
       "type": "number",
       "default": 0,
       "minimum": 0
