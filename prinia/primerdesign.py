@@ -3,6 +3,8 @@ This script generates primer pairs from either LOVD input or BED files for
 regions.
 Output in Miracle XML or TSV
 """
+from pathlib import Path
+from typing import Optional
 
 import argparse
 
@@ -16,11 +18,11 @@ from prinia.utils import generate_fastq_from_primers, NoPrimersException
 __author__ = 'ahbbollen'
 
 
-def primers_from_lovd(lovd_file, padding, product_size, n_prims, reference,
-                      bwa_exe, samtools_exe, primer3_exe, output_bam, dbsnp,
-                      field, max_freq, m13=False, m13_f="", m13_r="",
-                      strict=False, min_margin=10, ignore_errors=False,
-                      **prim_args):
+def primers_from_lovd(lovd_file, padding, reference, bwa_exe, samtools_exe,
+                      primer3_exe, output_bam, dbsnp, field, max_freq,
+                      m13=False, m13_f="", m13_r="", strict=False,
+                      min_margin=10, ignore_errors=False,
+                      settings_json: Optional[Path] = None):
     """**prim_args will be passed on to primer3"""
 
     variants = var_from_lovd(lovd_file)
@@ -28,14 +30,15 @@ def primers_from_lovd(lovd_file, padding, product_size, n_prims, reference,
     for var in variants:
         region = Region.from_variant(var, padding_l=padding, padding_r=padding)
         try:
-            _, prims = get_primer_from_region(region, reference, product_size,
-                                              n_prims, bwa_exe, samtools_exe,
-                                              primer3_exe,
+            _, prims = get_primer_from_region(region, reference,
+                                              bwa_exe=bwa_exe,
+                                              samtools_exe=samtools_exe,
+                                              primer3_exe=primer3_exe,
                                               output_bam=output_bam,
                                               dbsnp=dbsnp, field=field,
                                               max_freq=max_freq, strict=strict,
                                               min_margin=min_margin,
-                                              **prim_args)
+                                              settings_json=settings_json)
             primers.append(prims[0])
         except NoPrimersException:
             if ignore_errors:
@@ -48,11 +51,11 @@ def primers_from_lovd(lovd_file, padding, product_size, n_prims, reference,
     return variants, primers
 
 
-def primers_from_region(bed_path, padding, product_size, n_prims, reference,
-                        bwa_exe, samtools_exe, primer3_exe, output_bam,
-                        dbsnp, field, max_freq, m13=False, m13_f="",
-                        m13_r="", strict=False, min_margin=10,
-                        **prim_args):
+def primers_from_region(bed_path, padding, reference, bwa_exe, samtools_exe,
+                        primer3_exe, output_bam, dbsnp, field, max_freq,
+                        m13=False, m13_f="", m13_r="", strict=False,
+                        min_margin=10, ignore_errors=False,
+                        settings_json: Optional[Path] = None):
     """**prim_args will be passed on to primer3"""
     regions = []
     primers = []
@@ -62,19 +65,24 @@ def primers_from_region(bed_path, padding, product_size, n_prims, reference,
                 continue
             region = Region.from_bed(line, reference, padding_l=padding,
                                      padding_r=padding)
-            regs, prims = get_primer_from_region(region, reference,
-                                                 product_size, n_prims,
-                                                 bwa_exe, samtools_exe,
-                                                 primer3_exe,
-                                                 output_bam=output_bam,
-                                                 dbsnp=dbsnp, field=field,
-                                                 max_freq=max_freq,
-                                                 strict=strict,
-                                                 min_margin=min_margin,
-                                                 **prim_args)
-            regions += regs
-            primers += prims
-
+            try:
+                regs, prims = get_primer_from_region(region, reference,
+                                                     bwa_exe=bwa_exe,
+                                                     samtools_exe=samtools_exe,
+                                                     primer3_exe=primer3_exe,
+                                                     output_bam=output_bam,
+                                                     dbsnp=dbsnp, field=field,
+                                                     max_freq=max_freq,
+                                                     strict=strict,
+                                                     min_margin=min_margin,
+                                                     settings_json=settings_json) # noqa
+                regions += regs
+                primers += prims
+            except NoPrimersException:
+                if ignore_errors:
+                    continue
+                else:
+                    raise NoPrimersException
     if m13:
         primers = m13_primers(primers, m13_f, m13_r)
 
@@ -147,12 +155,6 @@ def main():
 
     parser.add_argument('-s', '--sample', help="Same ID for regions")
 
-    parser.add_argument('--product_size',
-                        help="Size range of desired product. "
-                             "Defaults to 200-450. "
-                             "This will be taken as a minimum product size in "
-                             "the case of regions",
-                        default="200-450")
     parser.add_argument("--min-margin", type=int, default=10,
                         help="Minimum distance from region or variant. "
                              "Default = 10")
@@ -161,9 +163,6 @@ def main():
                                          "max product size will "
                                          "NOT be returned",
                         action="store_true")
-    parser.add_argument('--n_raw_primers',
-                        help="Legacy option. Will be ignored",
-                        default=4, type=int)
 
     parser.add_argument('--m13', action="store_true",
                         help="Output primers with m13 tails")
@@ -200,24 +199,12 @@ def main():
     parser.add_argument('--bwa', help="Path to BWA exe", default="bwa")
     parser.add_argument('--samtools', help="Path to samtools exe",
                         default="samtools")
+    parser.add_argument('--settings-json', type=Path, default=None,
+                        required=False,
+                        help="Optional path to primer3 settings json file.")
 
     parser.add_argument("--ignore-errors", help="Ignore errors",
                         action="store_true")
-
-    parser.add_argument("--opt-primer-length",
-                        help="Optimum primer length (default = 25)",
-                        type=int, default=25)
-    parser.add_argument("--opt-gc-perc",
-                        help="Optimum primer GC percentage (default = 50)",
-                        type=int, default=50)
-    parser.add_argument("--min-melting-temperature",
-                        help="Minimum primer melting temperature "
-                             "(default = 58)",
-                        type=int, default=58)
-    parser.add_argument("--max-melting-temperature",
-                        help="Maximum primer melting temperature "
-                             "(default = 62)",
-                        type=int, default=62)
 
     args = parser.parse_args()
 
@@ -233,64 +220,40 @@ def main():
     if args.field and not args.allele_freq:
         raise ValueError("Must set an allele frequency")
 
-    primers = []
+    common_args = {
+        "padding": args.padding,
+        "reference": args.reference,
+        "bwa_exe": args.bwa,
+        "samtools_exe": args.samtools,
+        "primer3_exe": args.primer3,
+        "output_bam": args.bam,
+        "dbsnp": args.dbsnp,
+        "field": args.field,
+        "max_freq": args.allele_freq,
+        "m13": args.m13,
+        "m13_f": args.m13_forward,
+        "m13_r": args.m13_reverse,
+        "strict": args.strict,
+        "min_margin": args.min_margin,
+        "ignore_errors": args.ignore_errors,
+        "settings_json": args.settings_json
+    }
+
     if args.lovd and args.xml:
-        variants, primers = primers_from_lovd(args.lovd, args.padding,
-                                              args.product_size,
-                                              args.n_raw_primers,
-                                              args.reference, args.bwa,
-                                              args.samtools, args.primer3,
-                                              args.bam, args.dbsnp,
-                                              args.field, args.allele_freq,
-                                              args.m13, args.m13_forward,
-                                              args.m13_reverse,
-                                              args.strict,
-                                              args.min_margin,
-                                              args.ignore_errors)
+        variants, primers = primers_from_lovd(args.lovd, **common_args)
         primers_to_xml(variants, primers, args.xml, type='variants')
 
     elif args.region and args.xml:
-        regions, primers = primers_from_region(args.region, args.padding,
-                                               args.product_size,
-                                               args.n_raw_primers,
-                                               args.reference, args.bwa,
-                                               args.samtools, args.primer3,
-                                               args.bam, args.dbsnp,
-                                               args.field, args.allele_freq,
-                                               args.m13, args.m13_forward,
-                                               args.m13_reverse,
-                                               args.strict,
-                                               args.min_margin)
+        regions, primers = primers_from_region(args.region, **common_args)
         primers_to_xml(regions, primers, args.xml, type='regions',
                        sample=args.sample)
 
     elif args.xml and args.tsv:
-        variants, primers = primers_from_lovd(args.lovd, args.padding,
-                                              args.product_size,
-                                              args.n_raw_primers,
-                                              args.reference, args.bwa,
-                                              args.samtools, args.primer3,
-                                              args.bam, args.dbsnp,
-                                              args.field, args.allele_freq,
-                                              args.m13, args.m13_forward,
-                                              args.m13_reverse,
-                                              args.strict,
-                                              args.min_margin,
-                                              args.ignore_errors)
+        variants, primers = primers_from_lovd(args.lovd, **common_args)
         primers_to_tsv(variants, primers, args.tsv, type='variants')
 
     elif args.region and args.tsv:
-        regions, primers = primers_from_region(args.region, args.padding,
-                                               args.product_size,
-                                               args.n_raw_primers,
-                                               args.reference, args.bwa,
-                                               args.samtools, args.primer3,
-                                               args.bam, args.dbsnp,
-                                               args.field, args.allele_freq,
-                                               args.m13, args.m13_forward,
-                                               args.m13_reverse,
-                                               args.strict,
-                                               args.min_margin)
+        regions, primers = primers_from_region(args.region, **common_args)
         primers_to_tsv(regions, primers, args.tsv, type='regions',
                        sample=args.sample)
     else:

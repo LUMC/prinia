@@ -91,19 +91,12 @@ class Primer3(object):
 
     def __init__(self, primer3_exe: str, template: str,
                  target: str, excluded_region: str,
-                 settings_json: Optional[Path] = None):
+                 settings_dict: dict):
         self.primer3_exe = primer3_exe
         self.template = template
         self.target = target
         self.excluded_region = excluded_region
-        self.settings_json = settings_json
-        self.__settings_dict = None
-
-    @property
-    def settings_dict(self) -> dict:
-        if self.__settings_dict is None:
-            self.__settings_dict = parse_settings(self.settings_json)
-        return self.__settings_dict
+        self.settings_dict = settings_dict
 
     def run(self):
         cfg = NamedTemporaryFile(delete=False, mode="w")

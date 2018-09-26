@@ -1,9 +1,10 @@
 from builtins import (map, open, str)
 __author__ = 'ahbbollen'
 
+from pathlib import Path
+from typing import Optional
 from tempfile import NamedTemporaryFile
 from subprocess import check_call, call
-import os
 import warnings
 
 from Bio.Seq import Seq
@@ -11,12 +12,9 @@ from pyfaidx import Fasta
 from pysam import AlignmentFile
 
 from .models import Primer, Region
-from .primer3 import Primer3, parse_primer3_output
+from .primer3 import Primer3, parse_primer3_output, parse_settings
 from .utils import (NoPrimersException, calc_gc, NEW_VCF,
                     generate_fastq_from_primers, is_at_least_version_samtools)
-
-PRIMER3_SCRIPT = os.path.join(os.path.join(os.path.dirname(__file__),
-                                           "static"), 'getprimers.sh')
 
 
 def get_sequence_fasta(region, reference=None, padding=True):
@@ -34,9 +32,8 @@ def get_sequence_fasta(region, reference=None, padding=True):
         return ref[chrom][region.start_w_padding:region.stop_w_padding].seq
 
 
-def run_primer3(sequence, region, padding=True,
-                primer3_script=PRIMER3_SCRIPT, product_size="200-450",
-                n_primers=4, prim3_exe=None, **kwargs):
+def run_primer3(sequence, region, primer3_exe: str, settings_dict: dict,
+                padding=True):
     """Run primer 3. All other kwargs will be passed on to primer3"""
     if padding:
         target_start = region.padding_left
@@ -47,7 +44,7 @@ def run_primer3(sequence, region, padding=True,
 
     target = ",".join(map(str, [target_start, target_len]))
 
-    p3 = Primer3(prim3_exe, sequence, target, target, **kwargs)
+    p3 = Primer3(primer3_exe, sequence, target, target, settings_dict)
     p3_out = p3.run()
     primers = parse_primer3_output(p3_out)
     return primers
@@ -373,12 +370,15 @@ def chop_region(region, size):
     return regions
 
 
-def get_primer_from_region(region, reference, product_size, n_prims,
-                           bwa_exe, samtools_exe, primer3_exe,
+def get_primer_from_region(region, reference, bwa_exe,
+                           samtools_exe, primer3_exe,
                            output_bam=None, dbsnp=None, field=None,
                            max_freq=None, strict=False, min_margin=10,
-                           **prim_args):
+                           settings_json: Optional[Path] = None):
     """**prim_args will be passed on to primer3"""
+
+    settings_dict = parse_settings(settings_json)
+    product_size = settings_dict['primer_product_size_range']
 
     min_length, max_length = list(map(int, product_size.split("-")))
     regions = chop_region(region, min_length)
@@ -390,10 +390,8 @@ def get_primer_from_region(region, reference, product_size, n_prims,
 
     for reg in regions:
         sequence = get_sequence_fasta(reg, reference=reference)
-        raw_primers = run_primer3(sequence, reg, padding=True,
-                                  product_size=product_size,
-                                  n_primers=n_prims, prim3_exe=primer3_exe,
-                                  **prim_args)
+        raw_primers = run_primer3(sequence, reg, primer3_exe,
+                                  settings_dict, padding=True)
         bam = aln_primers(raw_primers, bwa_exe=bwa_exe,
                           samtools_exe=samtools_exe,
                           ref=reference, output_bam=output_bam)

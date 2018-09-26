@@ -123,6 +123,8 @@ def generate_fastq_from_primers(primers, forward_path, reverse_path):
     reverse_handle = open(reverse_path, "w")
 
     seqs = [primer_to_seq_record(x) for x in primers]
+    if len(seqs) < 1:
+        raise NoPrimersException
     forwards = [s[0] for s in seqs]
     reverses = [s[1] for s in seqs]
 

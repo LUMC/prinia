@@ -143,6 +143,7 @@ def rCRS():
 
 @pytest.mark.parametrize("settings_json, ignored", configuration_data)
 def test_primer3_run_non_failing(settings_json, ignored, rCRS):
+    settings_dict = parse_settings(settings_json)
     # assumes primer3_core is on the PATH
-    p = Primer3("primer3_core", rCRS, "3300-3400", "3200-3500", settings_json)
+    p = Primer3("primer3_core", rCRS, "3300-3400", "3200-3500", settings_dict)
     p.run()
