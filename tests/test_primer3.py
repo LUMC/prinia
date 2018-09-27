@@ -7,6 +7,7 @@ test_primer3.py
 :license: MIT
 """
 from pathlib import Path
+from shutil import which
 import pytest
 from prinia.primer3 import parse_settings, create_primer3_config, Primer3
 
@@ -145,5 +146,6 @@ def rCRS():
 def test_primer3_run_non_failing(settings_json, ignored, rCRS):
     settings_dict = parse_settings(settings_json)
     # assumes primer3_core is on the PATH
-    p = Primer3("primer3_core", rCRS, "3300-3400", "3200-3500", settings_dict)
+    primer3_exe = which("primer3_core")
+    p = Primer3(primer3_exe, rCRS, "3200,300", "3300,50", settings_dict)
     p.run()
