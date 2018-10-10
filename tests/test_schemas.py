@@ -26,6 +26,7 @@ data_dir = Path(__file__).parent / Path("data")
 setting_jsons_data = [
     (data_dir / Path("valid_settings.json"), True),
     (data_dir / Path("valid_partial_settings.json"), True),
+    (data_dir / Path("valid_partial_settings2.json"), True),
     (data_dir / Path("settings_wrong_types.json"), False),
     (data_dir / Path("settings_invalid_values.json"), False)
 ]

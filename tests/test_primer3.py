@@ -49,7 +49,10 @@ def test_none_settings():
         "primer_pair_wt_product_size_lt": 0.1,
         "primer_min_tm": 58,
         "primer_max_tm": 62,
-        "primer_num_return": 200
+        "primer_num_return": 200,
+        "primer_opt_tm": 60,
+        "primer_pair_max_diff_tm": 100,
+        "primer_max_hairpin_th": 47
     }
 
 
@@ -77,7 +80,10 @@ def test_complete_settings(valid_settings):
         "primer_pair_wt_product_size_lt": 0.12,
         "primer_min_tm": 55,
         "primer_max_tm": 75,
-        "primer_num_return": 100
+        "primer_num_return": 100,
+        "primer_opt_tm": 60,
+        "primer_pair_max_diff_tm": 100,
+        "primer_max_hairpin_th": 47
     }
 
 
@@ -106,7 +112,10 @@ def test_partial_settings(valid_partial_settings):
         "primer_pair_wt_product_size_lt": 0.12,
         "primer_min_tm": 55,
         "primer_max_tm": 75,
-        "primer_num_return": 100
+        "primer_num_return": 100,
+        "primer_opt_tm": 60,
+        "primer_pair_max_diff_tm": 100,
+        "primer_max_hairpin_th": 47
     }
 
 

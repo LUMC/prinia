@@ -127,10 +127,25 @@
       "type": "number",
       "default": 58
     },
+    "primer_opt_tm": {
+      "description": "Optimum melting temperature of primer in degrees Celcius",
+      "type": "number",
+      "default": 60
+    },
     "primer_max_tm": {
       "description": "Maximum melting temperature in degrees Celsius",
       "type": "number",
       "default": 62
+    },
+    "primer_pair_max_diff_tm": {
+      "description": "Maximum acceptable difference in melting temperature between primers",
+      "type": "number",
+      "default": 100,
+      "minimum": 0
+    },
+    "primer_max_hairpin_th": {
+      "type": "number",
+      "default": 47
     },
     "primer_num_return": {
       "description": "Number of returned primers. Increase to increase search space",

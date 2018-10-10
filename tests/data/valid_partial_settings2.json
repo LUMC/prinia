@@ -1,0 +1,8 @@
+{
+  "primer_min_size": 18,
+  "primer_max_size": 25,
+  "primer_min_tm": 57,
+  "primer_opt_tm": 60,
+  "primer_pair_max_diff_tm": 2,
+  "primer_max_hairpin_th": 47
+}
