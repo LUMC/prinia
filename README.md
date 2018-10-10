@@ -175,6 +175,7 @@ here as well:
 | `primer_num_return` | Number of returned primers. Increase to increase search space | 200 |
 
 
+Some example configuration files can be found [here](tests/data/valid_settings.json), [here](tests/data/valid_partial_settings.json) and [here](tests/data/valid_partial_settings2.json).
 
 Known issues
 ------------
