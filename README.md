@@ -154,6 +154,7 @@ here as well:
 | `primer_min_gc` | Minimum GC-percentage of primers | 20 |
 | `primer_internal_min_gc` | Equivalent parameter of primer_min_gc for the internal oligo. | 20 |
 | `primer_opt_gc_percent` | Optimum GC-percentage of primers | 50 |
+| `primer_internal_opt_gc_percent` | Equivalent parameter of primer_opt_gc_percent for the internal oligo | 50 |
 | `primer_max_gc` | Maximum GC-percentage of primers. | 80 |
 | `primer_internal_max_gc` | Equivalent parameter of primer_max_gc for the internal oligo. | 80 |
 | `primer_wt_gc_percent_lt` | Penalty weight for primers with GC-percentage lower than primer_opt_gc_percent | 0 |
@@ -170,8 +171,11 @@ here as well:
 | `primer_product_opt_size` | Optimum size of product. Will default to the midpoint in primer_product_size_range unless specified | 325 |
 | `primer_pair_wt_product_size_gt` | Penalty weight for products larger than primer_product_opt_size | 0.1 |
 | `primer_pair_wt_product_size_lt` | Penalty weight for products smaller than primer_product_opt_size | 0.1 |
-| `primer_min_tm` | Minimum melting temperature of primer degrees Celsius | 58 |
+| `primer_min_tm` | Minimum melting temperature of primer in degrees Celsius | 58 |
+| `primer_opt_tm` | Optimum melting temperature of primer in degrees Celcius | 60 |
 | `primer_max_tm` | Maximum melting temperature in degrees Celsius | 62 |
+| `primer_pair_max_diff_tm` | Maximum acceptable difference in melting temperature between primers | 100 |
+| `primer_max_hairpin_th` | | 47 |  
 | `primer_num_return` | Number of returned primers. Increase to increase search space | 200 |
 
 
