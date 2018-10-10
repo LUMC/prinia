@@ -24,6 +24,13 @@
       "minimum": 0,
       "maximum" : 100
     },
+    "primer_internal_opt_gc_percent": {
+      "description": "Equivalent parameter of primer_opt_gc_percent for the internal oligo",
+      "type": "number",
+      "default": 50,
+      "minimum": 0,
+      "maximum": 100
+    },
     "primer_max_gc": {
       "description": "Maximum GC-percentage of primers.",
       "type": "number",
