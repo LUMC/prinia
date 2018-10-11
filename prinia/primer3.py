@@ -72,17 +72,19 @@ def create_primer3_config(settings_dict: dict,
                           sequence_template: str,
                           sequence_target: str,
                           excluded_region: str,
-                          template_path: Path = TEMPLATE) -> str:
+                          template_path: Path = TEMPLATE,
+                          thermodynamic_params: Optional[Path] = None)-> str:
     """Create primer3 configuration from jinja2 template and settings_dict"""
     with template_path.open("r") as thandle:
-        template = Template(thandle.read())
+        template = Template(thandle.read(), trim_blocks=True)
 
     return template.render(
         {
             "seq": sequence_template,
             "target": sequence_target,
             "excluded_region": excluded_region,
-            "settings": settings_dict
+            "settings": settings_dict,
+            "thermodynamic_params": thermodynamic_params
         }
     )
 
