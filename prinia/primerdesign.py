@@ -22,7 +22,8 @@ def primers_from_lovd(lovd_file, padding, reference, bwa_exe, samtools_exe,
                       primer3_exe, output_bam, dbsnp, field, max_freq,
                       m13=False, m13_f="", m13_r="", strict=False,
                       min_margin=10, ignore_errors=False,
-                      settings_json: Optional[Path] = None):
+                      settings_json: Optional[Path] = None,
+                      thermodynamic_params: Optional[Path] = None):
     """**prim_args will be passed on to primer3"""
 
     variants = var_from_lovd(lovd_file)
@@ -38,7 +39,8 @@ def primers_from_lovd(lovd_file, padding, reference, bwa_exe, samtools_exe,
                                               dbsnp=dbsnp, field=field,
                                               max_freq=max_freq, strict=strict,
                                               min_margin=min_margin,
-                                              settings_json=settings_json)
+                                              settings_json=settings_json,
+                                              thermodynamic_params=thermodynamic_params)  # noqa
             primers.append(prims[0])
         except NoPrimersException:
             if ignore_errors:
@@ -55,7 +57,8 @@ def primers_from_region(bed_path, padding, reference, bwa_exe, samtools_exe,
                         primer3_exe, output_bam, dbsnp, field, max_freq,
                         m13=False, m13_f="", m13_r="", strict=False,
                         min_margin=10, ignore_errors=False,
-                        settings_json: Optional[Path] = None):
+                        settings_json: Optional[Path] = None,
+                        thermodynamic_params: Optional[Path] = None):
     """**prim_args will be passed on to primer3"""
     regions = []
     primers = []
@@ -75,7 +78,8 @@ def primers_from_region(bed_path, padding, reference, bwa_exe, samtools_exe,
                                                      max_freq=max_freq,
                                                      strict=strict,
                                                      min_margin=min_margin,
-                                                     settings_json=settings_json) # noqa
+                                                     settings_json=settings_json,  # noqa
+                                                     thermodynamic_params=thermodynamic_params)  # noqa
                 regions += regs
                 primers += prims
             except NoPrimersException:
@@ -202,6 +206,10 @@ def main():
     parser.add_argument('--settings-json', type=Path, default=None,
                         required=False,
                         help="Optional path to primer3 settings json file.")
+    parser.add_argument("--thermodynamic-params", type=Path, default=None,
+                        required=False,
+                        help="Optional path to primer3 thermodynamic"
+                             " parameters location")
 
     parser.add_argument("--ignore-errors", help="Ignore errors",
                         action="store_true")
@@ -236,7 +244,8 @@ def main():
         "strict": args.strict,
         "min_margin": args.min_margin,
         "ignore_errors": args.ignore_errors,
-        "settings_json": args.settings_json
+        "settings_json": args.settings_json,
+        "thermodynamic_params": args.thermodynamic_params
     }
 
     if args.lovd and args.xml:

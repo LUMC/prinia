@@ -65,6 +65,7 @@ usage: primerdesign [-h] (-l LOVD | --region REGION) [-p PADDING]
                     [-f FIELD] [-af ALLELE_FREQ] [-fq1 FQ1] [-fq2 FQ2] -R
                     REFERENCE [--dbsnp DBSNP] --primer3 PRIMER3 [--bwa BWA]
                     [--samtools SAMTOOLS] [--settings-json SETTINGS_JSON]
+                    [--thermodynamic-params THERMODYNAMIC_PARAMS]
                     [--ignore-errors]
 
 optional arguments:
@@ -106,6 +107,9 @@ optional arguments:
   --samtools SAMTOOLS   Path to samtools exe
   --settings-json SETTINGS_JSON
                         Optional path to primer3 settings json file.
+  --thermodynamic-params THERMODYNAMIC_PARAMS
+                        Optional path to primer3 thermodynamic parameters
+                        location
   --ignore-errors       Ignore errors
 ```
 

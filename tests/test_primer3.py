@@ -155,7 +155,7 @@ def conf_params():
 def test_primer3_conf_with_params(conf_params):
     some_path = Path("/some/path/to/params")
     generated_conf = create_primer3_config(
-        parse_settings(),"ACTG", "50-60", "50-60",
+        parse_settings(), "ACTG", "50-60", "50-60",
         thermodynamic_params=some_path)
 
     with conf_params.open("r") as chandle:

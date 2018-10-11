@@ -33,7 +33,7 @@ def get_sequence_fasta(region, reference=None, padding=True):
 
 
 def run_primer3(sequence, region, primer3_exe: str, settings_dict: dict,
-                padding=True):
+                padding=True, thermodynamic_params: Optional[Path] = None):
     """Run primer 3. All other kwargs will be passed on to primer3"""
     if padding:
         target_start = region.padding_left
@@ -44,7 +44,8 @@ def run_primer3(sequence, region, primer3_exe: str, settings_dict: dict,
 
     target = ",".join(map(str, [target_start, target_len]))
 
-    p3 = Primer3(primer3_exe, sequence, target, target, settings_dict)
+    p3 = Primer3(primer3_exe, sequence, target, target, settings_dict,
+                 thermodynamic_params=thermodynamic_params)
     p3_out = p3.run()
     primers = parse_primer3_output(p3_out)
     return primers
@@ -374,7 +375,8 @@ def get_primer_from_region(region, reference, bwa_exe,
                            samtools_exe, primer3_exe,
                            output_bam=None, dbsnp=None, field=None,
                            max_freq=None, strict=False, min_margin=10,
-                           settings_json: Optional[Path] = None):
+                           settings_json: Optional[Path] = None,
+                           thermodynamic_params: Optional[Path] = None):
     """**prim_args will be passed on to primer3"""
 
     settings_dict = parse_settings(settings_json)
@@ -391,7 +393,8 @@ def get_primer_from_region(region, reference, bwa_exe,
     for reg in regions:
         sequence = get_sequence_fasta(reg, reference=reference)
         raw_primers = run_primer3(sequence, reg, primer3_exe,
-                                  settings_dict, padding=True)
+                                  settings_dict, padding=True,
+                                  thermodynamic_params=thermodynamic_params)
         bam = aln_primers(raw_primers, bwa_exe=bwa_exe,
                           samtools_exe=samtools_exe,
                           ref=reference, output_bam=output_bam)

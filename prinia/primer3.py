@@ -93,19 +93,26 @@ class Primer3(object):
 
     def __init__(self, primer3_exe: str, template: str,
                  target: str, excluded_region: str,
-                 settings_dict: dict):
+                 settings_dict: dict,
+                 thermodynamic_params: Optional[Path] = None):
         self.primer3_exe = primer3_exe
         self.template = template
         self.target = target
         self.excluded_region = excluded_region
         self.settings_dict = settings_dict
+        self.thermodynamic_params = thermodynamic_params
 
     def run(self):
         cfg = NamedTemporaryFile(delete=False, mode="w")
         out = NamedTemporaryFile()
 
-        cfg.write(create_primer3_config(self.settings_dict, self.template,
-                                        self.target, self.excluded_region))
+        settings = create_primer3_config(
+            self.settings_dict, self.template,
+            self.target, self.excluded_region,
+            thermodynamic_params=self.thermodynamic_params
+        )
+
+        cfg.write(settings)
         cfg.close()
         args = [self.primer3_exe, "-output", out.name, cfg.name]
 
