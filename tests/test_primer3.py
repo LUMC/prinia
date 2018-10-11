@@ -147,6 +147,24 @@ def test_primer3_configuration(settings_json, conf):
 
 
 @pytest.fixture
+def conf_params():
+    return (data_dir /
+            Path("primer3_conf_default_with_thermodynamic_params.txt"))
+
+
+def test_primer3_conf_with_params(conf_params):
+    some_path = Path("/some/path/to/params")
+    generated_conf = create_primer3_config(
+        parse_settings(),"ACTG", "50-60", "50-60",
+        thermodynamic_params=some_path)
+
+    with conf_params.open("r") as chandle:
+        expected_conf = chandle.read().strip()
+
+    assert generated_conf == expected_conf
+
+
+@pytest.fixture
 def rCRS():
     rCRS_path = data_dir / Path("rCRS.fa")
     with rCRS_path.open("r") as handle:
