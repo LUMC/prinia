@@ -78,13 +78,21 @@ def create_primer3_config(settings_dict: dict,
     with template_path.open("r") as thandle:
         template = Template(thandle.read(), trim_blocks=True)
 
+    # primer3 wants paths to end in slashes
+    if thermodynamic_params is not None:
+        therm_params = str(thermodynamic_params)
+        if not therm_params.endswith("/"):
+            therm_params += "/"
+    else:
+        therm_params = None
+
     return template.render(
         {
             "seq": sequence_template,
             "target": sequence_target,
             "excluded_region": excluded_region,
             "settings": settings_dict,
-            "thermodynamic_params": thermodynamic_params
+            "thermodynamic_params": therm_params
         }
     )
 
