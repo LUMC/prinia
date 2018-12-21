@@ -14,7 +14,7 @@ def var_from_lovd(path):
 
     seen_header = False
     data_lines = 0
-    regex = re.compile('^(("\{\{[\w\/]+\}\}"|\{\{[\w\/]+\}\})\t)+')
+    regex = re.compile(r'^(("\{\{[\w\/]+\}\}"|\{\{[\w\/]+\}\})\t)+')
 
     with open(path, "rb") as handle:
         for line in handle:

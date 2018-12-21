@@ -46,7 +46,7 @@ def is_at_least_version_samtools(version_str, version_tupl):
     :raises ValueError: if version_tupl is not a 2-tuple
     :raises TypeError: if version_tupl contains non-integer
     """
-    regex = re.compile('^(\d+)\.(\d+).*$')
+    regex = re.compile(r'^(\d+)\.(\d+).*$')
     if " " not in version_str:
         match = regex.match(version_str)
     else:
