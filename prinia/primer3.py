@@ -175,7 +175,7 @@ def _parse_single_pair_id(id, lines):
 
 def parse_primer3_output(lines):
     """Parse primer3 output to Primers"""
-    seq_re = re.compile('^PRIMER_LEFT_(\d+)_SEQUENCE=.+$')
+    seq_re = re.compile(r'^PRIMER_LEFT_(\d+)_SEQUENCE=.+$')
 
     matches = [seq_re.match(x) for x in lines]
     pair_ids = [int(x.group(1)) for x in matches if x is not None]
